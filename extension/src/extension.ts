@@ -4,8 +4,9 @@ import {
 	TypedChannel,
 	StreamLogger,
 	MessageStream,
+	ConsoleStreamLogger,
 } from "@hediet/typed-json-rpc";
-import { startServer } from "@hediet/typed-json-rpc-websocket-server";
+import { startWebSocketServer } from "@hediet/typed-json-rpc-websocket-server";
 import { Disposable, window, OutputChannel, ExtensionContext } from "vscode";
 import { WebSocketStream } from "@hediet/typed-json-rpc-websocket";
 import { EditorServer } from "./editorServer";
@@ -54,11 +55,11 @@ class Extension implements Disposable {
 
 	private async startServer() {
 		const serverPort = 56030;
-		startServer(
+		startWebSocketServer(
 			{ port: serverPort },
 			this.rpcLogger,
 			async (channel, stream2) => {
-				const stream = new StreamLogger(stream2);
+				const stream = new ConsoleStreamLogger(stream2);
 				const client = { stream };
 
 				authenticationContract.registerServerAndGetClient(channel, {
@@ -106,7 +107,7 @@ class Extension implements Disposable {
 			host: "localhost",
 			port: RegistrarPort,
 		});
-		const client = new StreamLogger(client2);
+		const client = new ConsoleStreamLogger(client2);
 		const channel = TypedChannel.fromStream(client, this.rpcLogger);
 		const registrar = vscodeClientContract.registerClientAndGetServer(
 			channel,

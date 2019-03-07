@@ -1,7 +1,7 @@
 import {
 	TypedChannel,
 	ConsoleRpcLogger,
-	StreamLogger,
+	ConsoleStreamLogger,
 } from "@hediet/typed-json-rpc";
 import { WebSocketStream } from "@hediet/typed-json-rpc-websocket";
 import {
@@ -18,6 +18,10 @@ export abstract class Client {
 
 	public close(): void {
 		this.stream.close();
+	}
+
+	public dispose(): void {
+		this.close();
 	}
 }
 
@@ -95,35 +99,40 @@ async function connectAndAuthenticate(
 		host: "localhost",
 		port,
 	});
-	const channel = TypedChannel.fromStream(
-		new StreamLogger(stream),
-		new ConsoleRpcLogger()
-	);
-	channel.startListen();
+	try {
+		const channel = TypedChannel.fromStream(
+			new ConsoleStreamLogger(stream),
+			new ConsoleRpcLogger()
+		);
+		channel.startListen();
 
-	const server = authenticationContract.registerClientAndGetServer(
-		channel,
-		{}
-	);
+		const server = authenticationContract.registerClientAndGetServer(
+			channel,
+			{}
+		);
 
-	const appName = options.appName;
-	let token: string | undefined = undefined;
-	if (options.tokenStore) {
-		token = await options.tokenStore.loadToken();
-	}
-	if (!token) {
-		const result = await server.requestToken({ appName });
-		token = result.token;
+		const appName = options.appName;
+		let token: string | undefined = undefined;
 		if (options.tokenStore) {
-			options.tokenStore.storeToken(token);
+			token = await options.tokenStore.loadToken();
 		}
+		if (!token) {
+			const result = await server.requestToken({ appName });
+			token = result.token;
+			if (options.tokenStore) {
+				options.tokenStore.storeToken(token);
+			}
+		}
+
+		await server.authenticate({ token, appName });
+
+		return {
+			stream,
+			channel,
+			token,
+		};
+	} catch (e) {
+		stream.close();
+		throw e;
 	}
-
-	await server.authenticate({ token, appName });
-
-	return {
-		stream,
-		channel,
-		token,
-	};
 }

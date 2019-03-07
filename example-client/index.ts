@@ -1,38 +1,43 @@
 import { connectToVsCode, editorContract } from "vscode-remote-interface";
 import { FileTokenStore } from "vscode-remote-interface/out/FileTokenStore";
+import { guaranteeDisposeAsync } from "@hediet/utils/api/disposable";
 
 async function main() {
-	const client = await connectToVsCode({
-		appName: "Demo",
-		tokenStore: new FileTokenStore("./token.json"),
-	});
-	const instance = await client.registrar.listInstances({});
-	if (!instance) {
-		console.log("No vscode instance");
-		client.close();
-		return;
-	}
-	const vsCodeClient = await client.connectToInstance(instance[0]);
-
-	const editor = editorContract.registerClientAndGetServer(
-		vsCodeClient.channel,
-		{}
-	);
-
-	let i = 0;
-	while (i < 1000) {
-		i++;
-		editor.annotateLines({
-			annotations: [
-				{
-					line: 4,
-					text: "test2" + i,
-				},
-			],
+	await guaranteeDisposeAsync(async items => {
+		const client = await connectToVsCode({
+			appName: "Demo",
+			tokenStore: new FileTokenStore("./token.json"),
 		});
-	}
+		items.push(client);
 
-	vsCodeClient.close();
+		const instance = await client.registrar.listInstances({});
+		if (!instance) {
+			console.log("No vscode instance");
+			client.close();
+			return;
+		}
+		const vsCodeClient = await client.connectToInstance(instance[0]);
+		items.push(vsCodeClient);
+
+		const editor = editorContract.registerClientAndGetServer(
+			vsCodeClient.channel,
+			{}
+		);
+
+		let i = 0;
+		while (i < 100) {
+			i++;
+			editor.annotateLines({
+				annotations: [
+					{
+						line: 4,
+						text: "test" + i,
+					},
+				],
+			});
+		}
+	});
+
 	/*
 	const s = nodeDebuggerContract.registerClientAndGetServer(
 		connection.channel,
@@ -40,8 +45,6 @@ async function main() {
 	);
 	s.nodeDebugTargetBecameAvailable({ port: 134, targetId: "test12" });
 */
-
-	client.close();
 }
 
 main().catch(err => {

@@ -2,5 +2,9 @@
   "name": "example-client",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@hediet/utils": "^0.1.2",
+    "ws": "^6.2.0"
+  }
 }

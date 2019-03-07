@@ -2,20 +2,44 @@
 # yarn lockfile v1
 
 
-"@hediet/typed-json-rpc-websocket@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket/-/typed-json-rpc-websocket-0.2.0.tgz#914fc92d0130fb94d850584d9359b8bb6718db89"
-  integrity sha512-8x1p5LN0b38STeQ+yr+gdsx6OroysjwphwWM24xh5XvruWAvGnM7TRQC9nW57PAYpzlqM3MtT9hbjjWOUAcImA==
+"@hediet/typed-json-rpc-websocket@^0.3.0":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket/-/typed-json-rpc-websocket-0.3.1.tgz#9dea576e72a435ebf8aa8d9a7a996c25a7c1fc10"
+  integrity sha512-2R1bDRUZG0jPuX9YH4ukEjhAhB6FHF0W4voah0nDmdwA+t4pY6gtzT2T5wZbvNsYU7wz4pFcOQtc2JFYdFPu0w==
   dependencies:
-    "@hediet/typed-json-rpc" "^0.2.0"
+    "@hediet/typed-json-rpc" "^0.3.0"
+    "@types/ws" "^6.0.1"
     isomorphic-ws "^4.0.1"
 
-"@hediet/typed-json-rpc@^0.2.0", "@hediet/typed-json-rpc@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.2.1.tgz#adaeeadb911f2be086e84909a72244c21d75719b"
-  integrity sha512-OvPR9d4FdHuGC1J8aFo0UaY1PtX873sxvrnUhajR8rwzWd7Rvk6aCKrNaY/5Lf926FnSaYybmjcbHWvYOq1FKQ==
+"@hediet/typed-json-rpc@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.3.0.tgz#ffc06f9e1f79bdb262d1e45a4a96f2561fe41a8d"
+  integrity sha512-vbGT2HIlH6Z6D1dqAaraIUVYCG9LWrMVYwwB/vvwCNvMhNFh0fdnQEeYLYX8BY/IxtnawH9tc6LJVeGLFuDjmA==
   dependencies:
     io-ts "^1.7.0"
+
+"@types/events@*":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
+  integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
+
+"@types/node@*", "@types/node@^11.10.5":
+  version "11.10.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.10.5.tgz#fbaca34086bdc118011e1f05c47688d432f2d571"
+  integrity sha512-DuIRlQbX4K+d5I+GMnv+UfnGh+ist0RdlvOp+JZ7ePJ6KQONCFQv/gKYSU1ZzbVdFSUCKZOltjmpFAGGv5MdYA==
+
+"@types/ws@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-6.0.1.tgz#ca7a3f3756aa12f62a0a62145ed14c6db25d5a28"
+  integrity sha512-EzH8k1gyZ4xih/MaZTXwT2xOkPiIMSrhQ9b8wrlX88L0T02eYsddatQlwVFlEPyEqV0ChpdpNnE51QPH6NVT4Q==
+  dependencies:
+    "@types/events" "*"
+    "@types/node" "*"
+
+async-limiter@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
+  integrity sha512-jp/uFnooOiO+L211eZOoSyzpOITMXx1rBITauYykG3BRYPu8h0UcxsPNB04RR5vo4Tyz3+ay17tR6JVf9qzYWg==
 
 fp-ts@^1.0.0:
   version "1.14.3"
@@ -33,3 +57,10 @@ isomorphic-ws@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
   integrity sha512-BhBvN2MBpWTaSHdWRb/bwdZJ1WaehQ2L1KngkCkfLUGF0mAWAT1sQUQacEmQ0jXkFw/czDXPNQSL5u2/Krsz1w==
+
+ws@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.0.tgz#13806d9913b2a5f3cbb9ba47b563c002cbc7c526"
+  integrity sha512-deZYUNlt2O4buFCa3t5bKLf8A7FPP/TVjwOeVNpw818Ma5nk4MLXls2eoEGS39o8119QIYxTrTDoPQ5B/gTD6w==
+  dependencies:
+    async-limiter "~1.0.0"

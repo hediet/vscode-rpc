@@ -101,7 +101,7 @@ export const authenticationContract = contract([Registrar, VsCodeInstance], {
 				appName: t.string,
 			},
 			error: t.type({
-				kind: t.literal("invalid token"),
+				kind: t.union([t.literal("InvalidToken"), t.literal("Other")]),
 			}),
 		}),
 	},

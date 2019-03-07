@@ -1,4 +1,4 @@
-import { startServer } from "@hediet/typed-json-rpc-websocket-server";
+import { startWebSocketServer } from "@hediet/typed-json-rpc-websocket-server";
 import {
 	ConsoleRpcLogger,
 	TypedChannel,
@@ -81,149 +81,171 @@ export class Server {
 	}
 
 	private startServer() {
-		startServer({ port: RegistrarPort }, logger, (channel, stream) => {
-			const id = `${this.id++}`;
-			let curClient: NormalClient | VsCodeClient | undefined = undefined;
+		startWebSocketServer(
+			{ port: RegistrarPort },
+			logger,
+			(channel, stream) => {
+				const id = `${this.id++}`;
+				let curClient:
+					| NormalClient
+					| VsCodeClient
+					| undefined = undefined;
 
-			const vsCodeClient = vscodeClientContract.registerServerAndGetClient(
-				channel,
-				{
-					registerAsVsCodeInstance: async ({
-						name,
-						vscodeServerPort,
-					}) => {
-						if (curClient) {
-							throw new Error("Client already registered");
+				const vsCodeClient = vscodeClientContract.registerServerAndGetClient(
+					channel,
+					{
+						registerAsVsCodeInstance: async ({
+							name,
+							vscodeServerPort,
+						}) => {
+							if (curClient) {
+								throw new Error("Client already registered");
+							}
+
+							const {
+								content,
+							} = await vsCodeClient.authenticateVsCodeInstance({
+								filePathToRead: secretPath,
+							});
+
+							if (content !== this.secret) {
+								throw new Error("Invalid secret");
+							}
+
+							curClient = {
+								type: "vscode",
+								name,
+								client: vsCodeClient,
+								vscodeServerPort,
+								id,
+								channel,
+							};
+
+							channel.registerUnknownNotificationHandler(n => {
+								this.broadcast(
+									n,
+									Array.from(this.normalClients.values())
+								);
+							});
+
+							this.vsCodeClients.set(curClient.id, curClient);
+							stream.onClosed.then(() => {
+								this.vsCodeClients.delete(id);
+								if (this.vsCodeClients.size === 0) {
+									process.exit();
+								}
+							});
+						},
+						authenticateClient: async ({ appName, token }) => {
+							if (
+								!this.allowedClients.some(
+									c => c.token === token
+								)
+							) {
+								throw new Error("Not authorized");
+							}
+						},
+					}
+				);
+
+				authenticationContract.registerServerAndGetClient(channel, {
+					requestToken: async ({ appName }, err) => {
+						if (this.vsCodeClients.size === 0) {
+							return err({
+								error: { kind: "denied" },
+								errorMessage:
+									"There is no VsCode instance that could grant access",
+							});
+						}
+						const requestId = this.accessId;
+						this.accessId++;
+
+						const promises = Array.from(
+							this.vsCodeClients.values()
+						).map(c =>
+							c.client.requestAccess({
+								requestId,
+								appName,
+							})
+						);
+						const { accessGranted } = await Promise.race(promises);
+
+						for (const client of this.vsCodeClients.values()) {
+							client.client.cancelAccessRequest({
+								requestId,
+							});
 						}
 
-						const {
-							content,
-						} = await vsCodeClient.authenticateVsCodeInstance({
-							filePathToRead: secretPath,
-						});
+						if (!accessGranted) {
+							return err({
+								error: { kind: "denied" },
+								errorMessage: "Not allowed",
+							});
+						} else {
+							const token = cryptoRandomString(20);
+							this.allowedClients.push({ appName, token });
+							this.storeConfig();
 
-						if (content !== this.secret) {
-							throw new Error("Invalid secret");
+							return { token };
+						}
+					},
+					authenticate: async ({ appName, token }, err) => {
+						if (curClient) {
+							return err({
+								error: { kind: "Other" },
+								errorMessage: "Client already registered",
+							});
+						}
+
+						if (!this.allowedClients.some(c => c.token === token)) {
+							return err({
+								error: { kind: "InvalidToken" },
+								errorMessage: "An invalid token was provided",
+							});
 						}
 
 						curClient = {
-							type: "vscode",
-							name,
-							client: vsCodeClient,
-							vscodeServerPort,
-							id,
+							type: "normal",
+							appName,
 							channel,
+							id,
 						};
+
+						registrarContract.registerServerAndGetClient(channel, {
+							listInstances: async () => {
+								return Array.from(
+									this.vsCodeClients.values()
+								).map(c => ({
+									id: c.id,
+									name: c.name,
+									vscodeServerPort: c.vscodeServerPort,
+								}));
+							},
+							chooseInstance: async () => {
+								return null;
+							},
+							lastActiveInstance: async () => {
+								return null;
+							},
+						});
 
 						channel.registerUnknownNotificationHandler(n => {
 							this.broadcast(
 								n,
-								Array.from(this.normalClients.values())
+								Array.from(this.vsCodeClients.values())
 							);
 						});
 
-						this.vsCodeClients.set(curClient.id, curClient);
+						this.normalClients.set(curClient.id, curClient);
 						stream.onClosed.then(() => {
-							this.vsCodeClients.delete(id);
-							if (this.vsCodeClients.size === 0) {
-								process.exit();
-							}
+							this.normalClients.delete(id);
 						});
 					},
-					authenticateClient: async ({ appName, token }) => {
-						if (!this.allowedClients.some(c => c.token === token)) {
-							throw new Error("Not authorized");
-						}
-					},
-				}
-			);
+				});
 
-			authenticationContract.registerServerAndGetClient(channel, {
-				requestToken: async ({ appName }) => {
-					if (this.vsCodeClients.size === 0) {
-						throw new Error(
-							"There is no VsCode instance that could grant access"
-						);
-					}
-					const requestId = this.accessId;
-					this.accessId++;
-
-					const promises = Array.from(
-						this.vsCodeClients.values()
-					).map(c =>
-						c.client.requestAccess({
-							requestId,
-							appName,
-						})
-					);
-					const { accessGranted } = await Promise.race(promises);
-
-					for (const client of this.vsCodeClients.values()) {
-						client.client.cancelAccessRequest({
-							requestId,
-						});
-					}
-
-					if (!accessGranted) {
-						throw new Error("Access denied!");
-					} else {
-						const token = cryptoRandomString(20);
-						this.allowedClients.push({ appName, token });
-						this.storeConfig();
-
-						return { token };
-					}
-				},
-				authenticate: async ({ appName, token }) => {
-					if (curClient) {
-						throw new Error("Client already registered");
-					}
-
-					if (!this.allowedClients.some(c => c.token === token)) {
-						throw new Error("Not authorized");
-					}
-
-					curClient = {
-						type: "normal",
-						appName,
-						channel,
-						id,
-					};
-
-					registrarContract.registerServerAndGetClient(channel, {
-						listInstances: async () => {
-							return Array.from(this.vsCodeClients.values()).map(
-								c => ({
-									id: c.id,
-									name: c.name,
-									vscodeServerPort: c.vscodeServerPort,
-								})
-							);
-						},
-						chooseInstance: async () => {
-							return null;
-						},
-						lastActiveInstance: async () => {
-							return null;
-						},
-					});
-
-					channel.registerUnknownNotificationHandler(n => {
-						this.broadcast(
-							n,
-							Array.from(this.vsCodeClients.values())
-						);
-					});
-
-					this.normalClients.set(curClient.id, curClient);
-					stream.onClosed.then(() => {
-						this.normalClients.delete(id);
-					});
-				},
-			});
-
-			channel.startListen();
-		});
+				channel.startListen();
+			}
+		);
 	}
 
 	private broadcast(n: RequestObject, clients: { channel: TypedChannel }[]) {
