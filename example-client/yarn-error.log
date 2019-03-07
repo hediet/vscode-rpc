@@ -1,0 +1,41 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add vscode-remote-interface
+
+PATH: 
+  C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Microsoft VS Code\bin;C:\Program Files (x86)\Yarn\bin\;C:\Program Files (x86)\LLVM\bin;C:\Program Files\PuTTY\;C:\Program Files\nodejs\;C:\Program Files\Gource\cmd;C:\Users\henni\AppData\Local\Programs\Python\Python35-32\Scripts\;C:\Users\henni\AppData\Local\Programs\Python\Python35-32\;C:\Users\henni\AppData\Local\Programs\Python\Python35\Scripts\;C:\Users\henni\AppData\Local\Programs\Python\Python35\;C:\Users\henni\.cargo\bin;C:\Users\henni\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Microsoft VS Code\bin;C:\Users\henni\AppData\Local\Programs\MiKTeX 2.9\miktex\bin\x64\;C:\Users\henni\AppData\Local\Programs\Fiddler;C:\Users\henni\AppData\Local\Yarn\bin;;C:\Users\henni\AppData\Local\Microsoft\WindowsApps;C:\Users\henni\AppData\Roaming\npm
+
+Yarn version: 
+  1.13.0-20181010.1204
+
+Node version: 
+  11.8.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/vscode-remote-interface: Not found
+      at Request.params.callback [as _callback] (C:\Program Files (x86)\Yarn\lib\cli.js:62013:18)
+      at Request.self.callback (C:\Program Files (x86)\Yarn\lib\cli.js:124357:22)
+      at Request.emit (events.js:197:13)
+      at Request.<anonymous> (C:\Program Files (x86)\Yarn\lib\cli.js:125329:10)
+      at Request.emit (events.js:197:13)
+      at IncomingMessage.<anonymous> (C:\Program Files (x86)\Yarn\lib\cli.js:125251:12)
+      at Object.onceWrapper (events.js:285:13)
+      at IncomingMessage.emit (events.js:202:15)
+      at endReadableNT (_stream_readable.js:1129:12)
+      at processTicksAndRejections (internal/process/next_tick.js:76:17)
+
+npm manifest: 
+  {
+    "name": "example-client",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

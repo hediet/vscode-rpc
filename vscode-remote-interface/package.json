@@ -1,0 +1,13 @@
+{
+	"name": "vscode-remote-interface",
+	"version": "1.0.0",
+	"main": "./out/index.js",
+	"license": "MIT",
+	"scripts": {
+		"dev": "tsc --watch"
+	},
+	"dependencies": {
+		"@hediet/typed-json-rpc": "^0.2.1",
+		"@hediet/typed-json-rpc-websocket": "^0.2.0"
+	}
+}

@@ -10,17 +10,10 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:remote-interface.start-server"
+		"*"
 	],
 	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "remote-interface.start-server",
-				"title": "Start remote interface server"
-			}
-		]
-	},
+	"contributes": {},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
 		"compile": "tsc -p ./",
@@ -29,15 +22,21 @@
 		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
 	},
 	"dependencies": {
-		"@hediet/typed-json-rpc": "^0.1.0",
-		"@hediet/typed-json-rpc-websocket": "^0.1.0",
-		"@hediet/typed-json-rpc-websocket-server": "^0.1.0"
+		"@hediet/typed-json-rpc": "^0.2.0",
+		"@hediet/typed-json-rpc-websocket": "^0.2.0",
+		"@hediet/typed-json-rpc-websocket-server": "^0.2.0",
+		"@types/crypto-random-string": "^1.0.0",
+		"@types/env-paths": "^1.0.2",
+		"@types/ws": "^6.0.1",
+		"crypto-random-string": "^1.0.0",
+		"env-paths": "^2.1.0",
+		"mkdir-recursive": "^0.4.0"
 	},
 	"devDependencies": {
-		"typescript": "^3.1.4",
-		"vscode": "^1.1.25",
-		"tslint": "^5.8.0",
+		"@types/mocha": "^2.2.42",
 		"@types/node": "^8.10.25",
-		"@types/mocha": "^2.2.42"
+		"tslint": "^5.8.0",
+		"typescript": "^3.1.4",
+		"vscode": "^1.1.25"
 	}
 }
