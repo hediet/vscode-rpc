@@ -1,7 +1,7 @@
-import { Server } from ".";
+import { RegistrarServer } from ".";
 
 try {
-	new Server().start();
+	new RegistrarServer().start();
 } catch (e) {
 	console.log("error: " + e);
 	process.exit(1);

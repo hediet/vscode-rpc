@@ -1,10 +1,6 @@
 import { MessageStream, TypedChannel } from "@hediet/typed-json-rpc";
 import { DecorationOptions, Position, Range, ThemeColor, window } from "vscode";
-import {
-	editorContract,
-	textPosition,
-	textRange,
-} from "vscode-remote-interface";
+import { editorContract, textPosition, textRange } from "vscode-rpc";
 
 type Contract = typeof editorContract;
 type Server = Contract["TServerInterface"];
@@ -33,17 +29,19 @@ export class EditorServer {
 	});
 
 	public handleClient(channel: TypedChannel, stream: MessageStream) {
-		editorContract.registerServerAndGetClient(channel, {
+		editorContract.registerServer(channel, {
 			highlightLine: this.highlightLine,
 			highlight: this.highlight,
 			annotateLines: this.annotateLines,
 		});
 	}
 
-	private readonly highlightLine: Server["highlightLine"] = async args => {
+	private readonly highlightLine: Server["highlightLine"] = async ({
+		line,
+	}) => {
 		const editor = window.activeTextEditor;
 		if (editor) {
-			const range = editor.document.lineAt(args.line).range;
+			const range = editor.document.lineAt(line).range;
 			editor.setDecorations(this.highlightDecorationType, [range]);
 		}
 	};
@@ -57,12 +55,14 @@ export class EditorServer {
 		}
 	};
 
-	private readonly annotateLines: Server["annotateLines"] = async args => {
+	private readonly annotateLines: Server["annotateLines"] = async ({
+		annotations,
+	}) => {
 		const editor = window.activeTextEditor;
 		if (editor) {
 			editor.setDecorations(
 				this.deco,
-				args.annotations.map(a => {
+				annotations.map(a => {
 					const range = editor.document.lineAt(a.line).range;
 					return {
 						range,

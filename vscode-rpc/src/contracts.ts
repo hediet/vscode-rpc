@@ -14,48 +14,55 @@ const BroadcastContract = "BroadcastContract";
 export const vscodeClientContract = contract([Registrar], {
 	server: {
 		registerAsVsCodeInstance: requestContract({
-			params: {
+			params: t.type({
 				name: t.string,
 				vscodeServerPort: t.Integer,
-			},
+			}),
 		}),
 		authenticateClient: requestContract({
-			params: {
+			params: t.type({
 				token: t.string,
 				appName: t.string,
-			},
+			}),
 			error: t.type({
-				kind: t.literal("invalid token"),
+				kind: t.union([t.literal("InvalidToken"), t.literal("Other")]),
 			}),
 		}),
 	},
 	client: {
 		authenticateVsCodeInstance: requestContract({
-			params: {
+			params: t.type({
 				filePathToRead: t.string,
-			},
+			}),
 			result: t.type({
 				content: t.string,
 			}),
 		}),
 		requestAccess: requestContract({
-			params: {
+			params: t.type({
 				requestId: t.number,
 				appName: t.string,
-			},
+			}),
 			result: t.type({
 				accessGranted: t.boolean,
 			}),
 		}),
 		cancelAccessRequest: notificationContract({
-			params: {
+			params: t.type({
 				requestId: t.number,
-			},
+			}),
 		}),
-		connectedClientCountChanged: notificationContract({
-			params: {
+		clientConnected: notificationContract({
+			params: t.type({
+				clientId: t.string,
 				newClientCount: t.Integer,
-			},
+			}),
+		}),
+		clientDisconnected: notificationContract({
+			params: t.type({
+				clientId: t.string,
+				newClientCount: t.Integer,
+			}),
 		}),
 	},
 });
@@ -85,9 +92,9 @@ export const registrarContract = contract([Registrar], {
 export const authenticationContract = contract([Registrar, VsCodeInstance], {
 	server: {
 		requestToken: requestContract({
-			params: {
+			params: t.type({
 				appName: t.string,
-			},
+			}),
 			result: t.type({
 				token: t.string,
 			}),
@@ -96,10 +103,10 @@ export const authenticationContract = contract([Registrar, VsCodeInstance], {
 			}),
 		}),
 		authenticate: requestContract({
-			params: {
+			params: t.type({
 				token: t.string,
 				appName: t.string,
-			},
+			}),
 			error: t.type({
 				kind: t.union([t.literal("InvalidToken"), t.literal("Other")]),
 			}),
@@ -112,19 +119,26 @@ export const targetIdType = t.string;
 
 export const nodeDebuggerContract = contract([BroadcastContract], {
 	server: {
-		nodeDebugTargetBecameAvailable: notificationContract({
-			params: { port: t.Integer, targetId: targetIdType },
+		addNodeDebugTarget: notificationContract({
+			params: t.type({
+				port: t.Integer,
+				targetId: targetIdType,
+				name: t.union([t.null, t.string]),
+			}),
 		}),
-		nodeDebugTargetBecameUnavailable: notificationContract({
-			params: { targetId: targetIdType },
+		removeNodeDebugTarget: notificationContract({
+			params: t.type({ targetId: targetIdType }),
 		}),
 	},
 	client: {
-		attachingToNodeDebugTarget: notificationContract({
-			params: { targetId: targetIdType },
+		onNodeDebugTargetIgnored: notificationContract({
+			params: t.type({ targetId: targetIdType }),
 		}),
-		attachedToNodeDebugTarget: notificationContract({
-			params: { targetId: targetIdType },
+		onAttachingToNodeDebugTarget: notificationContract({
+			params: t.type({ targetId: targetIdType }),
+		}),
+		onAttachedToNodeDebugTarget: notificationContract({
+			params: t.type({ targetId: targetIdType }),
 		}),
 	},
 });
@@ -145,18 +159,18 @@ export const textRange = t.type({
 
 export const editorContract = contract([VsCodeInstance], {
 	server: {
-		highlightLine: requestContract({ params: { line: t.Integer } }),
+		highlightLine: requestContract({ params: t.type({ line: t.Integer }) }),
 		highlight: requestContract({
-			params: {
+			params: t.type({
 				range: textRange,
-			},
+			}),
 		}),
 		annotateLines: requestContract({
-			params: {
+			params: t.type({
 				annotations: t.array(
 					t.type({ line: t.Integer, text: t.string })
 				),
-			},
+			}),
 		}),
 	},
 	client: {},

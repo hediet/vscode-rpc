@@ -1,7 +1,7 @@
 import {
 	TypedChannel,
-	ConsoleRpcLogger,
-	ConsoleStreamLogger,
+	RpcLogger,
+	RpcStreamLogger,
 } from "@hediet/typed-json-rpc";
 import { WebSocketStream } from "@hediet/typed-json-rpc-websocket";
 import {
@@ -9,6 +9,7 @@ import {
 	authenticationContract,
 	RegistrarPort,
 } from "./contracts";
+import { TokenStore, StringToken } from "./TokenStore";
 
 export abstract class Client {
 	constructor(
@@ -29,18 +30,16 @@ export class RegistrarClient extends Client {
 	constructor(
 		channel: TypedChannel,
 		stream: WebSocketStream,
+		private readonly logger: RpcLogger | undefined,
 		private readonly appName: string,
 		private readonly token: string
 	) {
 		super(channel, stream);
 
-		this.registrar = registrarContract.registerClientAndGetServer(
-			channel,
-			{}
-		);
+		this.registrar = registrarContract.getServer(channel, {});
 	}
 
-	public readonly registrar: typeof registrarContract["TServerInterface"];
+	public readonly registrar: typeof registrarContract.TServerInterface;
 
 	public async connectToInstance({
 		vscodeServerPort,
@@ -48,7 +47,11 @@ export class RegistrarClient extends Client {
 		vscodeServerPort: number;
 	}): Promise<VsCodeClient> {
 		const data = await connectAndAuthenticate(
-			{ tokenStore: new StringToken(this.token), appName: this.appName },
+			{
+				tokenStore: new StringToken(this.token),
+				appName: this.appName,
+				logger: this.logger,
+			},
 			vscodeServerPort
 		);
 		return new VsCodeClient(data.channel, data.stream);
@@ -57,26 +60,10 @@ export class RegistrarClient extends Client {
 
 export class VsCodeClient extends Client {}
 
-export interface TokenStore {
-	loadToken(): Promise<string | undefined>;
-	storeToken(token: string): void;
-}
-
-export class StringToken implements TokenStore {
-	constructor(public readonly token: string) {}
-
-	public async loadToken(): Promise<string | undefined> {
-		return this.token;
-	}
-
-	public storeToken(_token: string): void {
-		throw new Error("Not supported");
-	}
-}
-
 export interface ConnectOptions {
 	appName: string;
 	tokenStore?: TokenStore;
+	logger?: RpcLogger;
 }
 
 export async function connectToVsCode(
@@ -86,6 +73,7 @@ export async function connectToVsCode(
 	return new RegistrarClient(
 		data.channel,
 		data.stream,
+		options.logger,
 		options.appName,
 		data.token
 	);
@@ -101,15 +89,14 @@ async function connectAndAuthenticate(
 	});
 	try {
 		const channel = TypedChannel.fromStream(
-			new ConsoleStreamLogger(stream),
-			new ConsoleRpcLogger()
+			options.logger
+				? new RpcStreamLogger(stream, options.logger)
+				: stream,
+			options.logger
 		);
 		channel.startListen();
 
-		const server = authenticationContract.registerClientAndGetServer(
-			channel,
-			{}
-		);
+		const server = authenticationContract.getServer(channel, {});
 
 		const appName = options.appName;
 		let token: string | undefined = undefined;
@@ -132,6 +119,7 @@ async function connectAndAuthenticate(
 			token,
 		};
 	} catch (e) {
+		// close only on an exception
 		stream.close();
 		throw e;
 	}

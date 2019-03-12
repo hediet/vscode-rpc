@@ -12,9 +12,9 @@
     isomorphic-ws "^4.0.1"
 
 "@hediet/typed-json-rpc@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.3.0.tgz#ffc06f9e1f79bdb262d1e45a4a96f2561fe41a8d"
-  integrity sha512-vbGT2HIlH6Z6D1dqAaraIUVYCG9LWrMVYwwB/vvwCNvMhNFh0fdnQEeYLYX8BY/IxtnawH9tc6LJVeGLFuDjmA==
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.3.10.tgz#de51dd634150ccbcfbef052d59a8b755d7f2cfe7"
+  integrity sha512-lMMGnD9B6MiGgODajIE+Ljjg0slkupFMonly6USRZX4D5HcWVftJv2Za23GMDj5X9Wa0gRXkYD9O21h85d9hUw==
   dependencies:
     io-ts "^1.7.0"
 
@@ -24,9 +24,9 @@
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
 
 "@types/node@*", "@types/node@^11.10.5":
-  version "11.10.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.10.5.tgz#fbaca34086bdc118011e1f05c47688d432f2d571"
-  integrity sha512-DuIRlQbX4K+d5I+GMnv+UfnGh+ist0RdlvOp+JZ7ePJ6KQONCFQv/gKYSU1ZzbVdFSUCKZOltjmpFAGGv5MdYA==
+  version "11.11.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.0.tgz#070e9ce7c90e727aca0e0c14e470f9a93ffe9390"
+  integrity sha512-D5Rt+HXgEywr3RQJcGlZUCTCx1qVbCZpVk3/tOOA6spLNZdGm8BU+zRgdRYDoF1pO3RuXLxADzMrF903JlQXqg==
 
 "@types/ws@^6.0.1":
   version "6.0.1"
@@ -40,6 +40,11 @@ async-limiter@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
   integrity sha512-jp/uFnooOiO+L211eZOoSyzpOITMXx1rBITauYykG3BRYPu8h0UcxsPNB04RR5vo4Tyz3+ay17tR6JVf9qzYWg==
+
+env-paths@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/env-paths/-/env-paths-2.1.0.tgz#aa0554965e8d109dd6759b90c1bd3d1cdd76d57b"
+  integrity sha512-UP0khs8YtfSoTOMiDsZMuH2nFXAF3dk2JKfkWZd5j3cRDwsUDPIaV7brRsQmclCTi/h7po/zVs+w10FgJTf9ag==
 
 fp-ts@^1.0.0:
   version "1.14.3"
@@ -57,6 +62,11 @@ isomorphic-ws@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
   integrity sha512-BhBvN2MBpWTaSHdWRb/bwdZJ1WaehQ2L1KngkCkfLUGF0mAWAT1sQUQacEmQ0jXkFw/czDXPNQSL5u2/Krsz1w==
+
+mkdir-recursive@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/mkdir-recursive/-/mkdir-recursive-0.4.0.tgz#7af3312e3e04987b1fba8fa873850f9e4d183cd1"
+  integrity sha512-gbTtiEu8P/GSMh1lAa0YYNr8XIfDzFgnWtetw3Hfz9nw6YXySHNYOZF/uUTgyp8GHvFnNw/EG7VhOkD6zfVb6A==
 
 ws@^6.2.0:
   version "6.2.0"
