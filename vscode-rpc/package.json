@@ -7,6 +7,15 @@
 		"src"
 	],
 	"license": "MIT",
+	"publisher": "hediet",
+	"author": {
+		"name": "Henning Dieterichs",
+		"email": "henning.dieterichs@live.de"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hediet/vscode-rpc-server.git"
+	},
 	"scripts": {
 		"dev": "tsc --watch"
 	},

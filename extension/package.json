@@ -2,15 +2,20 @@
 	"name": "vscode-rpc-server",
 	"displayName": "VSCode RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
-	"version": "0.0.1",
+	"icon": "./docs/logo.png",
+	"version": "0.1.0",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
 	},
 	"publisher": "hediet",
+	"author": {
+		"email": "henning.dieterichs@live.de",
+		"name": "Henning Dieterichs"
+	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/hediet/vscode-remote-interface.git"
+		"url": "https://github.com/hediet/vscode-rpc-server.git"
 	},
 	"categories": [
 		"Other"
