@@ -9,7 +9,7 @@ import {
 	JSONObject,
 	RuntimeJsonType,
 } from "@hediet/typed-json-rpc";
-import { Type, string } from "io-ts";
+import { Type, string, literal, union, boolean } from "io-ts";
 
 class ExternParam<TParamName extends string, TType> {
 	constructor(
@@ -51,6 +51,11 @@ export const sourceClientIdParam = paramDef({
 	type: string,
 });
 
+export const serverToServerParam = paramDef({
+	paramName: "$serverToServer",
+	type: boolean,
+});
+
 type ExtendServerContract<
 	TRequestMap extends OneSideContract
 > = AsOneSideContract<
@@ -61,7 +66,8 @@ type ExtendServerContract<
 					kind: "notification";
 					params: Type<
 						TRequestMap[TRequest]["params"]["_A"] &
-							typeof sourceClientIdParam.TExtra,
+							typeof sourceClientIdParam.TExtra &
+							typeof serverToServerParam.TExtra,
 						JSONArray | JSONObject
 					>;
 			  }
@@ -92,6 +98,6 @@ export function dispatched<
 		client: TContractObj["client"];
 	}
 > {
-	// TODO
+	// TODO implement actual typechecking of $sourceClientId
 	return contract as any;
 }

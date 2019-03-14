@@ -103,6 +103,8 @@ async function connectAndAuthenticate(
 		if (options.tokenStore) {
 			token = await options.tokenStore.loadToken();
 		}
+
+		const loadedTokenFromStore = !!token;
 		if (!token) {
 			const result = await server.requestToken({ appName });
 			token = result.token;
@@ -111,7 +113,18 @@ async function connectAndAuthenticate(
 			}
 		}
 
-		await server.authenticate({ token, appName });
+		try {
+			await server.authenticate({ token, appName });
+		} catch (e) {
+			if (loadedTokenFromStore) {
+				const result = await server.requestToken({ appName });
+				token = result.token;
+				if (options.tokenStore) {
+					options.tokenStore.storeToken(token);
+				}
+			}
+			await server.authenticate({ token, appName });
+		}
 
 		return {
 			stream,

@@ -137,9 +137,6 @@ export const nodeDebuggerContract = contract([BroadcastContract], {
 		onAttachingToNodeDebugTarget: notificationContract({
 			params: t.type({ targetId: targetIdType }),
 		}),
-		onAttachedToNodeDebugTarget: notificationContract({
-			params: t.type({ targetId: targetIdType }),
-		}),
 	},
 });
 

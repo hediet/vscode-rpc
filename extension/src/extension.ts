@@ -21,25 +21,25 @@ import { StatusBarOptionService } from "./StatusBarOptionService";
 import getPort from "get-port";
 import { Barrier } from "@hediet/std/synchronization";
 import {
-	types as t,
 	RpcLogger,
 	TypedChannel,
 	MessageStream,
-	ConsoleStreamLogger,
+	RpcStreamLogger,
 } from "@hediet/typed-json-rpc";
+import { DisposableComponent } from "@hediet/std/disposable";
+import { StatusCommand } from "./registrar/StatusCommand";
 
-class Extension implements Disposable {
-	private readonly disposables = new Array<Disposable>();
+class Extension extends DisposableComponent {
 	private readonly outputChannel: OutputChannel;
 	private readonly rpcLogger: RpcLogger;
-	private readonly clients = new Set<VscodeClient>();
 	private readonly editorServer: EditorServer;
-	private readonly nodeDebugServer: NodeDebugServer;
+	private nodeDebugServer!: NodeDebugServer;
 	private registrar!: typeof vscodeClientContract.TServerInterface;
 
 	constructor() {
+		super();
 		this.outputChannel = window.createOutputChannel("RPC Server Log");
-		this.disposables.push(this.outputChannel);
+		this.addDisposable(this.outputChannel);
 
 		this.rpcLogger = {
 			debug: args => this.outputChannel.appendLine(args.text),
@@ -48,28 +48,39 @@ class Extension implements Disposable {
 		};
 
 		this.editorServer = new EditorServer();
-		this.nodeDebugServer = new NodeDebugServer(this.outputChannel);
 
 		this.startServer().catch(reason => {
 			console.error(reason);
-			this.outputChannel.appendLine(`Error: ${reason}`);
+			if (reason && "message" in reason) {
+				reason = reason.message;
+			}
+			this.outputChannel.appendLine(
+				`Error while starting server: ${reason}`
+			);
+		});
+
+		this.addDisposable(this.authStatusBar);
+		this.addDisposable({
+			dispose: () => {
+				for (const opt of this.allowAccessStatusBarItems.values()) {
+					opt.dispose();
+				}
+				this.allowAccessStatusBarItems.clear();
+			},
 		});
 	}
 
-	public dispose() {
-		for (const d of this.disposables) {
-			d.dispose();
-		}
-	}
-
 	private async startServer() {
-		this.startRegistrarProcessIfNotRunning();
+		await this.startRegistrarProcessIfNotRunning();
 
-		const registrarStream = new ConsoleStreamLogger(
-			await WebSocketStream.connectTo({
-				host: "localhost",
-				port: RegistrarPort,
-			})
+		const registrarClient = await WebSocketStream.connectTo({
+			host: "localhost",
+			port: RegistrarPort,
+		});
+		this.addDisposable(registrarClient);
+		const registrarStream = new RpcStreamLogger(
+			registrarClient,
+			this.rpcLogger
 		);
 		const registrarChannel = TypedChannel.fromStream(
 			registrarStream,
@@ -88,6 +99,10 @@ class Extension implements Disposable {
 				this.nodeDebugServer.onClientDisconnected(clientId),
 		});
 
+		this.nodeDebugServer = new NodeDebugServer(
+			this.outputChannel,
+			registrarChannel
+		);
 		this.nodeDebugServer.handleClient(registrarChannel, registrarStream);
 
 		registrarChannel.startListen();
@@ -105,29 +120,48 @@ class Extension implements Disposable {
 			vscodeServerPort: server.port,
 		});
 
-		window.showInformationMessage("Server started");
+		this.addDisposable(server);
+
+		window.showInformationMessage("RPC Server ready");
 	}
 
-	private async startRegistrarProcessIfNotRunning(): Promise<void> {
-		const proc = spawn("node", [join(__dirname, "./registrar/app")], {
-			detached: true,
-		});
-		proc.on("error", e => {
-			console.error("error", e);
-		});
-		proc.on("close", e => {
-			console.log("closed", e);
-		});
-		proc.stdout.on("data", chunk => {
-			console.log("data", chunk.toString("utf8"));
-		});
-		proc.stderr.on("data", chunk => {
-			console.log("data", chunk);
+	private startRegistrarProcessIfNotRunning(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const proc = spawn("node", [join(__dirname, "./registrar/app")], {
+				detached: true,
+			});
+			proc.on("error", e => {
+				console.error("error", e);
+			});
+			proc.on("close", e => {
+				console.log("closed", e);
+			});
+
+			proc.stdout.on("data", chunk => {
+				const data = chunk.toString("utf8");
+				const cmds = data.trim().split("\n");
+				for (const cmdStr of cmds) {
+					console.log("Server Data", cmdStr);
+					const cmd = JSON.parse(cmdStr) as StatusCommand;
+					if (cmd.kind === "started") {
+						resolve();
+					} else if (cmd.kind === "log") {
+						console.log("Log from Server: ", cmd.message);
+					} else if (cmd.kind === "error") {
+						console.error("Error from Server: ", cmd.message);
+					}
+				}
+			});
+			proc.stderr.on("data", chunk => {
+				console.log("data", chunk);
+			});
 		});
 	}
+
+	private readonly clients = new Set<VscodeClient>();
 
 	private handleClient(channel: TypedChannel, stream2: MessageStream) {
-		const stream = new ConsoleStreamLogger(stream2);
+		const stream = new RpcStreamLogger(stream2, this.rpcLogger);
 		const client = { stream };
 
 		authenticationContract.registerServer(channel, {
@@ -154,15 +188,15 @@ class Extension implements Disposable {
 		channel.startListen();
 	}
 
-	private options = new Map<number, Disposable>();
+	private allowAccessStatusBarItems = new Map<number, Disposable>();
 
 	private readonly cancelAccessRequest: typeof vscodeClientContract.TClientInterface.cancelAccessRequest = async ({
 		requestId,
 	}) => {
-		const d = this.options.get(requestId);
+		const d = this.allowAccessStatusBarItems.get(requestId);
 		if (d) {
 			d.dispose();
-			this.options.delete(requestId);
+			this.allowAccessStatusBarItems.delete(requestId);
 		}
 	};
 
@@ -180,29 +214,29 @@ class Extension implements Disposable {
 
 		let x = 10;
 		x = x;
-		this.options.set(
+		this.allowAccessStatusBarItems.set(
 			requestId,
 			this.authStatusBar.addOptions({
-				options: {
-					allow: {
+				options: [
+					{
 						caption: `$(key) Grant RPC Token to "${appName}"`,
 						action: () => {
-							this.options.delete(requestId);
+							this.allowAccessStatusBarItems.delete(requestId);
 							b.unlock({
 								accessGranted: true,
 							});
 						},
 					},
-					deny: {
+					{
 						caption: "Deny",
 						action: () => {
-							this.options.delete(requestId);
+							this.allowAccessStatusBarItems.delete(requestId);
 							b.unlock({
 								accessGranted: false,
 							});
 						},
 					},
-				},
+				],
 			})
 		);
 

@@ -1,13 +1,13 @@
 import { startWebSocketServer } from "@hediet/typed-json-rpc-websocket-server";
 import {
-	ConsoleRpcLogger,
 	TypedChannel,
 	rawNotification,
 	RequestObject,
 	MessageStream,
+	RpcLogger,
 } from "@hediet/typed-json-rpc";
 import envPaths from "env-paths";
-import { writeFileSync, readFileSync, existsSync, readFile } from "fs";
+import { writeFileSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
 import cryptoRandomString = require("crypto-random-string");
 import { mkdirSync } from "mkdir-recursive";
@@ -17,18 +17,30 @@ import {
 	authenticationContract,
 	registrarContract,
 } from "vscode-rpc";
-import { type, literal, string, array, union, nullType, object } from "io-ts";
+import { type, literal, string, array, union, nullType } from "io-ts";
 import { DateFromISOString } from "io-ts-types";
 import { sha256 } from "crypto-hash";
 import { Barrier } from "@hediet/std/synchronization";
-import { sourceClientIdParam } from "../contractTransformer";
+import {
+	sourceClientIdParam,
+	serverToServerParam,
+} from "../contractTransformer";
+import { StatusCommand } from "./StatusCommand";
 
 const paths = envPaths("VsCodeRemoteInterfaceServer");
 mkdirSync(paths.config);
 const secretPath = join(paths.config, "secret.txt");
 const allowedClientsPath = join(paths.config, "allowedClients.json");
 
-const logger = new ConsoleRpcLogger();
+export function send(status: StatusCommand) {
+	console.log(JSON.stringify(status));
+}
+
+const logger: RpcLogger = {
+	debug: entry => send({ kind: "log", message: entry.text }),
+	trace: entry => send({ kind: "log", message: entry.text }),
+	warn: entry => send({ kind: "log", message: entry.text }),
+};
 
 interface VsCodeClient {
 	type: "vscode";
@@ -87,11 +99,15 @@ export class RegistrarServer {
 	private readonly secret = cryptoRandomString(20);
 	private allowedClients = new Array<typeof allowedClient["_A"]>();
 
-	start() {
-		this.startServer();
+	async start() {
+		await this.startServer();
 		// port could be allocated, no race conditions here
 		writeFileSync(secretPath, this.secret);
 
+		this.loadConfig();
+	}
+
+	loadConfig() {
 		if (existsSync(allowedClientsPath)) {
 			const configJson = readFileSync(allowedClientsPath, {
 				encoding: "utf8",
@@ -101,13 +117,35 @@ export class RegistrarServer {
 			if (result.isRight()) {
 				this.allowedClients = result.value.clients;
 			} else {
-				console.error(result.value.map(e => e.message).join(", "));
+				send({
+					kind: "error",
+					message:
+						"Could not load config: " +
+						result.value.map(e => e.message).join(", "),
+				});
 				this.allowedClients = [];
 			}
 		}
 	}
 
+	getDaysBetweenDates(firstDate: Date, secondDate: Date): number {
+		const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+		const diffDays = Math.round(
+			Math.abs((firstDate.getTime() - secondDate.getTime()) / oneDay)
+		);
+		return diffDays;
+	}
+
 	storeConfig() {
+		// delete clients that didn't connect in the last 30 days
+		this.allowedClients = this.allowedClients.filter(c => {
+			const d = c.lastAuthenticated || c.granted;
+			if (this.getDaysBetweenDates(d, new Date()) > 30) {
+				return false;
+			}
+			return true;
+		});
+
 		const json = JSON.stringify(
 			configType.encode({
 				version: 1,
@@ -122,12 +160,11 @@ export class RegistrarServer {
 	}
 
 	private hashToken(token: string) {
+		// salted hash
 		return sha256("5df82936cbf0864be4b7ba801bee392457fde9e4" + token);
 	}
 
-	private startServer() {
-		console.log("start");
-
+	private async startServer() {
 		const server = startWebSocketServer(
 			{ port: RegistrarPort },
 			logger,
@@ -163,9 +200,8 @@ export class RegistrarServer {
 			}
 		);
 
-		if (server.port != RegistrarPort) {
-			throw "Error"; // TODO
-		}
+		await server.onListening;
+		send({ kind: "started", successful: true });
 	}
 
 	private broadcast(
@@ -214,11 +250,23 @@ export class RegistrarServer {
 		};
 
 		context.client.channel.registerUnknownNotificationHandler(n => {
-			this.broadcast(
-				context.client.id,
-				n,
-				Array.from(this.normalClients.values())
-			);
+			if (
+				n.params &&
+				!Array.isArray(n.params) &&
+				serverToServerParam.get(n.params)
+			) {
+				this.broadcast(
+					context.client.id,
+					n,
+					Array.from(this.vsCodeClients.values())
+				);
+			} else {
+				this.broadcast(
+					context.client.id,
+					n,
+					Array.from(this.normalClients.values())
+				);
+			}
 		});
 
 		this.vsCodeClients.set(context.client.id, context.client);

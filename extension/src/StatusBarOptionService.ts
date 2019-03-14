@@ -6,11 +6,12 @@ import {
 	StatusBarItem,
 } from "vscode";
 import { getParametrizedCommand } from "./CommandsService";
+import { DisposableComponent } from "@hediet/std/disposable";
 
 const resolveOptionCommandId = (id: string) => "resolve-option-" + id;
 
 export interface Options {
-	options: { [name: string]: { action: () => void; caption: string } };
+	options: { action: () => void; caption: string }[];
 }
 
 export interface Config {
@@ -19,7 +20,7 @@ export interface Config {
 	priority: number;
 }
 
-export class StatusBarOptionService {
+export class StatusBarOptionService extends DisposableComponent {
 	private static curId = 0;
 	private readonly registeredOptions = new Map<
 		number,
@@ -27,20 +28,23 @@ export class StatusBarOptionService {
 	>();
 
 	constructor(private readonly config: Config) {
-		commands.registerCommand(
-			resolveOptionCommandId(config.id),
-			(id: number, optionName: string) => {
-				const option = this.registeredOptions.get(id);
-				if (!option) {
-					throw new Error("No option with given id");
+		super();
+		this.addDisposable(
+			commands.registerCommand(
+				resolveOptionCommandId(config.id),
+				(id: number, optionId: number) => {
+					const option = this.registeredOptions.get(id);
+					if (!option) {
+						throw new Error("No option with given id");
+					}
+					const o = option.options.options[optionId];
+					if (!o) {
+						throw new Error("Selected option does not exist");
+					}
+					o.action();
+					option.disposable.dispose();
 				}
-				const o = option.options.options[optionName];
-				if (!o) {
-					throw new Error("Selected option does not exist");
-				}
-				o.action();
-				option.disposable.dispose();
-			}
+			)
 		);
 	}
 
@@ -51,9 +55,9 @@ export class StatusBarOptionService {
 		const id = StatusBarOptionService.curId++;
 		const disposables = new Array<Disposable>();
 
-		for (const optionName in options.options) {
+		let optionIdx = 0;
+		for (const option of options.options) {
 			prio--;
-			const option = options.options[optionName];
 			const optionItem = window.createStatusBarItem(
 				this.config.alignment,
 				prio
@@ -61,13 +65,14 @@ export class StatusBarOptionService {
 			items.push(optionItem);
 			const { command, disposable } = getParametrizedCommand(
 				resolveOptionCommandId(this.config.id),
-				[id, optionName]
+				[id, optionIdx]
 			);
 			disposables.push(disposable);
 
 			optionItem.command = command;
 			optionItem.text = option.caption;
 			optionItem.show();
+			optionIdx++;
 		}
 
 		const disposable = new Disposable(() => {
@@ -83,5 +88,14 @@ export class StatusBarOptionService {
 		this.registeredOptions.set(id, { options, disposable });
 
 		return disposable;
+	}
+
+	dispose() {
+		for (const options of this.registeredOptions.values()) {
+			options.disposable.dispose();
+		}
+		this.registeredOptions.clear();
+
+		super.dispose();
 	}
 }

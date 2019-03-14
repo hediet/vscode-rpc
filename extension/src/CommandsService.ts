@@ -1,12 +1,13 @@
 import { commands, Disposable } from "vscode";
 
 let curId = 0;
-const commandId = (id: number) => `anonymous-command.${id}`;
+const commandId = (id: number) => `vscode-rpc-anonymous-command.${id}`;
 
 export function getAnonymousCommand(
 	func: () => void
 ): { command: string; disposable: Disposable } {
-	const id = curId++;
+	curId += 1;
+	const id = curId;
 	const parametrizedCommand = commandId(id);
 	const d = commands.registerCommand(parametrizedCommand, () => {
 		func();

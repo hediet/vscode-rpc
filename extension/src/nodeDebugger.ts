@@ -1,27 +1,31 @@
 import { TypedChannel, MessageStream } from "@hediet/typed-json-rpc";
-import { nodeDebuggerContract, vscodeClientContract } from "vscode-rpc";
+import { nodeDebuggerContract } from "vscode-rpc";
 import {
 	OutputChannel,
-	window,
 	DebugConfiguration,
 	debug,
-	workspace,
 	StatusBarAlignment,
 	Disposable,
 } from "vscode";
 import { StatusBarOptionService } from "./StatusBarOptionService";
 import { Barrier } from "@hediet/std/synchronization";
 import { dispatched } from "./contractTransformer";
-import { string } from "io-ts";
+import { DisposableComponent } from "@hediet/std/disposable";
 
 const dispatchedNodeDebuggerContract = dispatched(nodeDebuggerContract);
 
 type Contract = typeof dispatchedNodeDebuggerContract;
 type Server = Contract["TServerInterface"];
 
-export class NodeDebugServer {
+export class NodeDebugServer extends DisposableComponent {
 	private readonly clients = new Set<Contract["TClientInterface"]>();
-	constructor(private readonly outputChannel: OutputChannel) {}
+	constructor(
+		private readonly outputChannel: OutputChannel,
+		private readonly registrarServer: TypedChannel
+	) {
+		super();
+		this.addDisposable(this.statusBarService);
+	}
 
 	private readonly statusBarService = new StatusBarOptionService({
 		id: "nodeDebugStatusBar",
@@ -31,9 +35,8 @@ export class NodeDebugServer {
 
 	public handleClient(channel: TypedChannel, stream: MessageStream) {
 		const client = dispatchedNodeDebuggerContract.registerServer(channel, {
-			nodeDebugTargetBecameAvailable: this.nodeDebugTargetBecameAvailable,
-			nodeDebugTargetBecameUnavailable: this
-				.nodeDebugTargetBecameUnavailable,
+			addNodeDebugTarget: this.addNodeDebugTarget,
+			removeNodeDebugTarget: this.removeNodeDebugTarget,
 		});
 		this.clients.add(client);
 
@@ -65,13 +68,13 @@ export class NodeDebugServer {
 		this.openRequestsByTargetId.delete(targetId);
 	}
 
-	private readonly nodeDebugTargetBecameUnavailable: Server["nodeDebugTargetBecameUnavailable"] = async ({
+	private readonly removeNodeDebugTarget: Server["removeNodeDebugTarget"] = async ({
 		targetId,
 	}) => {
 		this.cancelRequest(targetId);
 	};
 
-	private readonly nodeDebugTargetBecameAvailable: Server["nodeDebugTargetBecameAvailable"] = async ({
+	private readonly addNodeDebugTarget: Server["addNodeDebugTarget"] = async ({
 		port: debuggerPort,
 		targetId,
 		name,
@@ -82,8 +85,8 @@ export class NodeDebugServer {
 		this.openRequestsByTargetId.set(
 			targetId,
 			this.statusBarService.addOptions({
-				options: {
-					attach: {
+				options: [
+					{
 						caption: `$(bug) Debug Node Process${
 							name ? ` "${name}"` : ""
 						}`,
@@ -91,13 +94,13 @@ export class NodeDebugServer {
 							b.unlock({ attach: true });
 						},
 					},
-					ignore: {
+					{
 						caption: `Ignore`,
 						action: () => {
 							b.unlock({ attach: false });
 						},
 					},
-				},
+				],
 			})
 		);
 		let client = this.targetIdsByClientId.get($sourceClientId);
@@ -108,27 +111,41 @@ export class NodeDebugServer {
 		client.push(targetId);
 
 		const { attach } = await b.onUnlocked;
-
 		if (attach) {
-			const config: DebugConfiguration = {
-				type: "node2",
-				request: "attach",
-				name: "Attach to process",
-				port: debuggerPort,
-			};
-
-			try {
-				for (const client of this.clients) {
-					client.attachingToNodeDebugTarget({
-						targetId,
-					});
-				}
-
-				const result = await debug.startDebugging(undefined, config);
-				this.outputChannel.appendLine(`start: ${result}`);
-			} catch (ex) {
-				this.outputChannel.appendLine(`ex: ${ex}`);
+			await this.launchDebugger(debuggerPort, targetId);
+		} else {
+			for (const client of this.clients) {
+				client.onNodeDebugTargetIgnored({
+					targetId,
+				});
 			}
 		}
 	};
+
+	private async launchDebugger(debuggerPort: number, targetId: string) {
+		// "type: node" does not work!
+		const config: DebugConfiguration = {
+			type: "node2",
+			request: "attach",
+			name: "Attach to process",
+			port: debuggerPort,
+		};
+
+		try {
+			for (const client of this.clients) {
+				client.onAttachingToNodeDebugTarget({
+					targetId,
+				});
+			}
+			const result = await debug.startDebugging(undefined, config);
+			for (const client of this.clients) {
+				client.onAttachedToNodeDebugTarget({
+					targetId,
+				});
+			}
+			this.outputChannel.appendLine(`start: ${result}`);
+		} catch (ex) {
+			this.outputChannel.appendLine(`ex: ${ex}`);
+		}
+	}
 }
