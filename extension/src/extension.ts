@@ -27,7 +27,8 @@ import {
 	RpcStreamLogger,
 } from "@hediet/typed-json-rpc";
 import { DisposableComponent } from "@hediet/std/disposable";
-import { StatusCommand } from "./registrar/StatusCommand";
+import { registrarCliContract } from "./registrar/contract";
+import { NodeJsMessageStream } from "@hediet/typed-json-rpc-streams";
 
 class Extension extends DisposableComponent {
 	private readonly outputChannel: OutputChannel;
@@ -129,6 +130,8 @@ class Extension extends DisposableComponent {
 		return new Promise((resolve, reject) => {
 			const proc = spawn("node", [join(__dirname, "./registrar/app")], {
 				detached: true,
+				shell: false,
+				windowsHide: true,
 			});
 			proc.on("error", e => {
 				console.error("error", e);
@@ -137,21 +140,18 @@ class Extension extends DisposableComponent {
 				console.log("closed", e);
 			});
 
-			proc.stdout.on("data", chunk => {
-				const data = chunk.toString("utf8");
-				const cmds = data.trim().split("\n");
-				for (const cmdStr of cmds) {
-					console.log("Server Data", cmdStr);
-					const cmd = JSON.parse(cmdStr) as StatusCommand;
-					if (cmd.kind === "started") {
-						resolve();
-					} else if (cmd.kind === "log") {
-						console.log("Log from Server: ", cmd.message);
-					} else if (cmd.kind === "error") {
-						console.error("Error from Server: ", cmd.message);
-					}
+			registrarCliContract.getServerFromStream(
+				NodeJsMessageStream.connectToProcess(proc),
+				undefined,
+				{
+					log: async ({ message }) =>
+						console.log("Log from Server: ", message),
+					error: async ({ message }) =>
+						console.error("Error from Server: ", message),
+					started: async ({ succesful }) => resolve(),
 				}
-			});
+			);
+
 			proc.stderr.on("data", chunk => {
 				console.log("data", chunk);
 			});

@@ -1,11 +1,20 @@
-import { RegistrarServer, send } from ".";
+import { RegistrarServer } from ".";
+import { NodeJsMessageStream } from "@hediet/typed-json-rpc-streams";
+import { registrarCliContract } from "./contract";
 
 async function main() {
+	const { client } = registrarCliContract.registerServerToStream(
+		NodeJsMessageStream.connectToThisProcess(),
+		undefined,
+		{}
+	);
+
 	try {
-		await new RegistrarServer().start();
+		await new RegistrarServer(client).start();
+		await client.started({ succesful: true });
 	} catch (e) {
-		send({ kind: "started", successful: false });
-		send({ kind: "error", message: e.toString() });
+		await client.started({ succesful: false });
+		await client.error({ message: e.toString() });
 		process.exit(1);
 	}
 }

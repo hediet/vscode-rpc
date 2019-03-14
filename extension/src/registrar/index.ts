@@ -25,22 +25,12 @@ import {
 	sourceClientIdParam,
 	serverToServerParam,
 } from "../contractTransformer";
-import { StatusCommand } from "./StatusCommand";
+import { registrarCliContract } from "./contract";
 
 const paths = envPaths("VsCodeRemoteInterfaceServer");
 mkdirSync(paths.config);
 const secretPath = join(paths.config, "secret.txt");
 const allowedClientsPath = join(paths.config, "allowedClients.json");
-
-export function send(status: StatusCommand) {
-	console.log(JSON.stringify(status));
-}
-
-const logger: RpcLogger = {
-	debug: entry => send({ kind: "log", message: entry.text }),
-	trace: entry => send({ kind: "log", message: entry.text }),
-	warn: entry => send({ kind: "log", message: entry.text }),
-};
 
 interface VsCodeClient {
 	type: "vscode";
@@ -98,6 +88,17 @@ export class RegistrarServer {
 	private accessId: number = 0;
 	private readonly secret = cryptoRandomString(20);
 	private allowedClients = new Array<typeof allowedClient["_A"]>();
+	private rpcLogger: RpcLogger;
+
+	constructor(
+		private readonly cliContract: typeof registrarCliContract.TClientInterface
+	) {
+		this.rpcLogger = {
+			debug: entry => cliContract.log({ message: entry.text }),
+			trace: entry => cliContract.log({ message: entry.text }),
+			warn: entry => cliContract.log({ message: entry.text }),
+		};
+	}
 
 	async start() {
 		await this.startServer();
@@ -117,8 +118,7 @@ export class RegistrarServer {
 			if (result.isRight()) {
 				this.allowedClients = result.value.clients;
 			} else {
-				send({
-					kind: "error",
+				this.cliContract.error({
 					message:
 						"Could not load config: " +
 						result.value.map(e => e.message).join(", "),
@@ -167,7 +167,7 @@ export class RegistrarServer {
 	private async startServer() {
 		const server = startWebSocketServer(
 			{ port: RegistrarPort },
-			logger,
+			this.rpcLogger,
 			(channel, stream) => {
 				const context: Context = {
 					client: {
@@ -201,7 +201,6 @@ export class RegistrarServer {
 		);
 
 		await server.onListening;
-		send({ kind: "started", successful: true });
 	}
 
 	private broadcast(
