@@ -1,0 +1,153 @@
+@startuml RegistrarStartup
+actor user as "User"
+participant vscode1 as "Vs Code 1"
+participant registrar1 as "Registrar 1"
+participant vscode2 as "Vs Code 2"
+participant registrar2 as "Registrar 2"
+participant os as "Operating System"
+
+activate user
+
+group Start Vs Code 1
+    create vscode1
+    user ->> vscode1: Start
+    activate vscode1
+    create registrar1
+    vscode1 ->> registrar1: ""spawn""
+    activate registrar1
+
+    registrar1 -> os: Open Port 56024
+    activate os
+    os --> registrar1: Success
+    deactivate os
+
+    registrar1 ->> vscode1: Ready
+
+    vscode1 ->> registrar1: Connect
+end
+
+group Start Vs Code 2
+    create vscode2
+    user ->> vscode2: Start
+    activate vscode2
+
+    create registrar2
+    vscode2 ->> registrar2: ""spawn""
+    activate registrar2
+
+    registrar2 -> os: Open Port 56024
+    activate os
+    os --> registrar2: ""EADDRINUSE""
+    deactivate os
+
+    registrar2 ->> vscode2: Ready
+    destroy registrar2
+
+    vscode2 ->> registrar1: Connect
+end
+
+group Close Vs Code 1
+    user ->> vscode1: Close
+    vscode1 ->> registrar1: Disconnect
+    destroy vscode1
+end
+
+group Close Vs Code 2
+    user ->> vscode2: Close
+    vscode2 ->> registrar1: Disconnect
+    destroy vscode2
+end
+destroy registrar1
+
+@enduml
+
+
+@startuml VsCodeAuthentication
+
+participant os as "Operating System"
+participant vscode as "Vs Code"
+participant registrar as "Registrar"
+
+activate vscode
+
+vscode -> os: Open Random Port
+activate os
+os -> vscode: Port
+deactivate os
+
+vscode -> registrar: ""registerAsVsCodeInstance(vsCodeServerPort)""
+activate registrar
+
+registrar -> vscode: ""authenticateVsCodeInstance(filePathToRead)""
+activate vscode
+vscode --> registrar: ""ok(content)""
+deactivate vscode
+
+registrar --> vscode: ""ok""
+deactivate registrar
+
+@enduml
+
+@startuml ClientRequestsToken
+
+participant client as "Client"
+participant registrar as "Registrar"
+participant vscode1 as "Vs Code 1"
+participant vscode2 as "Vs Code 2"
+
+activate client
+client -> registrar: ""requestToken""
+activate registrar
+
+registrar -> vscode1: ""requestAccess""
+activate vscode1
+registrar -> vscode2: ""requestAccess""
+activate vscode2
+
+vscode1 --> registrar: ""grant""
+deactivate vscode1
+
+registrar ->> vscode1: ""cancelAccessRequest""
+registrar ->> vscode2: ""cancelAccessRequest""
+vscode2 --> registrar: ""cancelled""
+deactivate vscode2
+
+registrar -> registrar: Store ""hash(token)""
+
+registrar --> client: ""ok(token)""
+deactivate registrar
+
+@enduml
+
+@startuml ClientAuthenticatesToRegistrar
+participant client as "Client"
+participant registrar as "Registrar"
+participant vscode1 as "Vs Code 1"
+participant vscode2 as "Vs Code 2"
+
+activate client
+client -> registrar: ""authenticate(token)""
+activate registrar
+registrar ->> vscode1: ""clientConnected""
+registrar ->> vscode2: ""clientConnected""
+registrar --> client: ""ok""
+
+
+@enduml
+
+@startuml ClientAuthenticatesToVSCode
+participant client as "Client"
+participant vscode as "VS Code"
+participant registrar as "Registrar"
+
+activate client
+client -> vscode: ""authenticate(token)""
+activate vscode
+
+vscode -> registrar: ""authenticateClient(token)""
+activate registrar
+registrar --> vscode: ""ok""
+deactivate registrar
+
+vscode --> client: ""ok""
+@enduml

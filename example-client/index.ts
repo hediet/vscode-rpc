@@ -1,50 +1,41 @@
-import { connectToVsCode, editorContract } from "vscode-remote-interface";
-import { FileTokenStore } from "vscode-remote-interface/out/FileTokenStore";
-import { guaranteeDisposeAsync } from "@hediet/utils/api/disposable";
+import { connectToVsCode, editorContract } from "vscode-rpc";
+import {
+	FileTokenStore,
+	GlobalTokenStore,
+} from "vscode-rpc/dist/FileTokenStore";
+import { disposeOnReturn } from "@hediet/std/disposable";
 
 async function main() {
-	await guaranteeDisposeAsync(async items => {
+	await disposeOnReturn(async track => {
 		const client = await connectToVsCode({
 			appName: "Demo",
+			// use `GlobalTokenStore` to use a user wide storage
 			tokenStore: new FileTokenStore("./token.json"),
 		});
-		items.push(client);
+		track(client);
 
 		const instance = await client.registrar.listInstances({});
 		if (!instance) {
-			console.log("No vscode instance");
+			console.error("No vscode instance");
 			client.close();
 			return;
 		}
+
 		const vsCodeClient = await client.connectToInstance(instance[0]);
-		items.push(vsCodeClient);
+		track(vsCodeClient);
 
-		const editor = editorContract.registerClientAndGetServer(
-			vsCodeClient.channel,
-			{}
-		);
+		const editor = editorContract.getServer(vsCodeClient.channel, {});
 
-		let i = 0;
-		while (i < 100) {
-			i++;
-			editor.annotateLines({
-				annotations: [
-					{
-						line: 4,
-						text: "test" + i,
-					},
-				],
-			});
-		}
+		// the target vs code instance must have an active file open for this to work
+		editor.annotateLines({
+			annotations: [
+				{
+					line: 1,
+					text: "test",
+				},
+			],
+		});
 	});
-
-	/*
-	const s = nodeDebuggerContract.registerClientAndGetServer(
-		connection.channel,
-		{}
-	);
-	s.nodeDebugTargetBecameAvailable({ port: 134, targetId: "test12" });
-*/
 }
 
 main().catch(err => {

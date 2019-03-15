@@ -24,7 +24,18 @@
 		"*"
 	],
 	"main": "./out/extension.js",
-	"contributes": {},
+	"contributes": {
+		"commands": [
+			{
+				"title": "Open RPC Server Configuration File",
+				"command": "vscode-rpc-server.open-server-config"
+			},
+			{
+				"title": "Reload RPC Server Configuration",
+				"command": "vscode-rpc-server.reload-server-config"
+			}
+		]
+	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
 		"compile": "tsc -p ./",

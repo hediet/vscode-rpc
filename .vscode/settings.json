@@ -1,9 +1,11 @@
-// Place your settings in this file to overwrite default and user settings.
 {
 	"files.exclude": {
-		"extension/out": false // set this to true to hide the "out" folder with the compiled JS files
+		"extension/out": true
 	},
 	"search.exclude": {
-		"extension/out": true // set this to false to include "out" folder in search results
-	}
+		"extension/out": true
+	},
+	"plantuml.diagramsRoot": "docs",
+	"plantuml.exportFormat": "png",
+	"plantuml.exportOutDir": "docs/exported"
 }

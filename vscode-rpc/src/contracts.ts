@@ -28,6 +28,16 @@ export const vscodeClientContract = contract([Registrar], {
 				kind: t.union([t.literal("InvalidToken"), t.literal("Other")]),
 			}),
 		}),
+		getConfigFileName: requestContract({
+			result: t.type({
+				path: t.string,
+			}),
+		}),
+		reloadConfig: requestContract({
+			error: t.type({
+				message: t.string,
+			}),
+		}),
 	},
 	client: {
 		authenticateVsCodeInstance: requestContract({

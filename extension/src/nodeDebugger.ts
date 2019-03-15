@@ -138,11 +138,6 @@ export class NodeDebugServer extends DisposableComponent {
 				});
 			}
 			const result = await debug.startDebugging(undefined, config);
-			for (const client of this.clients) {
-				client.onAttachedToNodeDebugTarget({
-					targetId,
-				});
-			}
 			this.outputChannel.appendLine(`start: ${result}`);
 		} catch (ex) {
 			this.outputChannel.appendLine(`ex: ${ex}`);

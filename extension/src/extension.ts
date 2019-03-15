@@ -5,6 +5,9 @@ import {
 	OutputChannel,
 	ExtensionContext,
 	StatusBarAlignment,
+	commands,
+	workspace,
+	ViewColumn,
 } from "vscode";
 import { WebSocketStream } from "@hediet/typed-json-rpc-websocket";
 import { EditorServer } from "./editorServer";
@@ -14,8 +17,6 @@ import {
 	vscodeClientContract,
 	RegistrarPort,
 } from "vscode-rpc";
-import { spawn } from "child_process";
-import { join } from "path";
 import { readFileSync } from "fs";
 import { StatusBarOptionService } from "./StatusBarOptionService";
 import getPort from "get-port";
@@ -27,8 +28,6 @@ import {
 	RpcStreamLogger,
 } from "@hediet/typed-json-rpc";
 import { DisposableComponent } from "@hediet/std/disposable";
-import { registrarCliContract } from "./registrar/contract";
-import { NodeJsMessageStream } from "@hediet/typed-json-rpc-streams";
 import { startRegistrarProcessIfNotRunning } from "./registrar";
 
 class Extension extends DisposableComponent {
@@ -70,6 +69,26 @@ class Extension extends DisposableComponent {
 				this.allowAccessStatusBarItems.clear();
 			},
 		});
+
+		this.addDisposable(
+			commands.registerCommand(
+				"vscode-rpc-server.open-server-config",
+				async () => {
+					const { path } = await this.registrar.getConfigFileName({});
+					const d = await workspace.openTextDocument(path);
+					window.showTextDocument(d, ViewColumn.Active);
+				}
+			)
+		);
+
+		this.addDisposable(
+			commands.registerCommand(
+				"vscode-rpc-server.reload-server-config",
+				async () => {
+					await this.registrar.reloadConfig({});
+				}
+			)
+		);
 	}
 
 	private async startServer() {
@@ -109,13 +128,13 @@ class Extension extends DisposableComponent {
 
 		registrarChannel.startListen();
 		const port = await getPort();
-		const server = startWebSocketServer(
-			{ port },
-			this.rpcLogger,
-			(channel, stream) => {
-				this.handleClient(channel, stream);
-			}
-		);
+		const server = startWebSocketServer({ port }, stream => {
+			const channel = TypedChannel.fromStream(
+				new RpcStreamLogger(stream, this.rpcLogger),
+				this.rpcLogger
+			);
+			this.handleClient(channel, stream);
+		});
 
 		await this.registrar.registerAsVsCodeInstance({
 			name: "VSCode",
@@ -129,8 +148,7 @@ class Extension extends DisposableComponent {
 
 	private readonly clients = new Set<VscodeClient>();
 
-	private handleClient(channel: TypedChannel, stream2: MessageStream) {
-		const stream = new RpcStreamLogger(stream2, this.rpcLogger);
+	private handleClient(channel: TypedChannel, stream: MessageStream) {
 		const client = { stream };
 
 		authenticationContract.registerServer(channel, {

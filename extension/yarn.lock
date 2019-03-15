@@ -22,9 +22,9 @@
     "@types/node" "^11.11.3"
 
 "@hediet/typed-json-rpc-websocket-server@^0.3.0":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket-server/-/typed-json-rpc-websocket-server-0.3.12.tgz#98ff8e606a72936871fbead2962fa71f1ce27e51"
-  integrity sha512-dqZ7J4b3r/0i7YKd1PHxbO0PUWOOfyopb8BfDJkoqYiuMfB3qJFEzqmOC3igwleOiScuMNIrRDipIm5HvcLeyg==
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket-server/-/typed-json-rpc-websocket-server-0.3.13.tgz#6738228d052bce14fb52a2d311b902bde8eee83a"
+  integrity sha512-FVi5YNr82xhflquKRyeFeoNl48ZnDuG1uKYSc6MSOwYL1VM2EJl6anzrCjm44bd1tE4Vo8oqIcrksmbbdsUGYQ==
   dependencies:
     "@hediet/std" "^0.1.10"
     "@hediet/typed-json-rpc" "^0.3.0"
@@ -1735,9 +1735,9 @@ type-detect@4.0.8, type-detect@^4.0.0, type-detect@^4.0.5:
   integrity sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
 
 typescript@^3.4.0-dev.20190314:
-  version "3.4.0-dev.20190315"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.0-dev.20190315.tgz#b427ed583541aa187ef073b711e5dc242edefca5"
-  integrity sha512-AmAGWYv52Bka/q20YNFy3jRiPMgAmWssti5uLTzFoPyuuzCd/GPmxm+j3iYm22ShrrDJw8biPxVDTq3DnOIaWA==
+  version "3.4.0-rc"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.0-rc.tgz#bc4026c3c517a30fa514b896f2684c6ba92caadb"
+  integrity sha512-wtm2GwuV0Yy2zvmpFaMDtWHnRbzfERi9FLpL+K+JqGkHoclgEQ6TmD1AMxMIjs80NWRIq0Xp1veQyuZbGsUYsg==
 
 unc-path-regex@^0.1.2:
   version "0.1.2"
@@ -1865,9 +1865,9 @@ vinyl@^2.0.0, vinyl@^2.0.1, vinyl@^2.0.2:
     replace-ext "^1.0.0"
 
 vscode-rpc@^0.2.0:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/vscode-rpc/-/vscode-rpc-0.2.3.tgz#ded4b8179022110191b45ed18cc79adc88a5bb7b"
-  integrity sha512-NUI6gnZjj8MPQ9xwewv3snYAnTivOiBHqwPSyBzZ/k0s1CfgBD2U0wYww8gOdIFZz9N0UFQtKyw2ReRyketX7Q==
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/vscode-rpc/-/vscode-rpc-0.2.4.tgz#3692becafc0fb3d13a564b6f9dfcbe456435aa8f"
+  integrity sha512-7TUqN2znnIh1iUyCS6wo9D8EeSZGUJXrPP0FQlsd4TMsmzHZtKhRdyaC3LW/k8lgdi2b9o7V+Btx+Kp1+8jWKQ==
   dependencies:
     "@hediet/typed-json-rpc" "^0.3.0"
     "@hediet/typed-json-rpc-websocket" "^0.3.0"

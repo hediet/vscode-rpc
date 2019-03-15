@@ -5,6 +5,7 @@ import {
 	RequestObject,
 	MessageStream,
 	RpcLogger,
+	RpcStreamLogger,
 } from "@hediet/typed-json-rpc";
 import envPaths from "env-paths";
 import { writeFileSync, readFileSync, existsSync } from "fs";
@@ -30,7 +31,7 @@ import { registrarCliContract } from "./contract";
 const paths = envPaths("VsCodeRemoteInterfaceServer");
 mkdirSync(paths.config);
 const secretPath = join(paths.config, "secret.txt");
-const allowedClientsPath = join(paths.config, "allowedClients.json");
+const configPath = join(paths.config, "config.json");
 
 interface VsCodeClient {
 	type: "vscode";
@@ -109,22 +110,25 @@ export class RegistrarServer {
 	}
 
 	loadConfig() {
-		if (existsSync(allowedClientsPath)) {
-			const configJson = readFileSync(allowedClientsPath, {
-				encoding: "utf8",
+		if (!existsSync(configPath)) {
+			this.storeConfig();
+			return;
+		}
+
+		const configJson = readFileSync(configPath, {
+			encoding: "utf8",
+		});
+		const config = JSON.parse(configJson);
+		const result = configType.decode(config);
+		if (result.isRight()) {
+			this.allowedClients = result.value.clients;
+		} else {
+			this.cliContract.error({
+				message:
+					"Could not load config: " +
+					result.value.map(e => e.message).join(", "),
 			});
-			const config = JSON.parse(configJson);
-			const result = configType.decode(config);
-			if (result.isRight()) {
-				this.allowedClients = result.value.clients;
-			} else {
-				this.cliContract.error({
-					message:
-						"Could not load config: " +
-						result.value.map(e => e.message).join(", "),
-				});
-				this.allowedClients = [];
-			}
+			this.allowedClients = [];
 		}
 	}
 
@@ -150,9 +154,11 @@ export class RegistrarServer {
 			configType.encode({
 				version: 1,
 				clients: this.allowedClients,
-			})
+			}),
+			undefined,
+			"\t"
 		);
-		writeFileSync(allowedClientsPath, json);
+		writeFileSync(configPath, json);
 	}
 
 	private createToken(): string {
@@ -165,40 +171,39 @@ export class RegistrarServer {
 	}
 
 	private async startServer() {
-		const server = startWebSocketServer(
-			{ port: RegistrarPort },
-			this.rpcLogger,
-			(channel, stream) => {
-				const context: Context = {
-					client: {
-						type: "unauthorized",
-						channel,
-						stream,
-						id: `client${this.id++}`,
-					},
-				};
+		const server = startWebSocketServer({ port: RegistrarPort }, stream => {
+			const channel = TypedChannel.fromStream(
+				new RpcStreamLogger(stream, this.rpcLogger),
+				this.rpcLogger
+			);
 
-				vscodeClientContractWithContext.registerServer(
+			const context: Context = {
+				client: {
+					type: "unauthorized",
 					channel,
-					context,
-					{
-						registerAsVsCodeInstance: this.registerAsVsCodeInstance,
-						authenticateClient: this.authenticateClient,
-					}
-				);
+					stream,
+					id: `client${this.id++}`,
+				},
+			};
 
-				authenticationContractWithContext.registerServer(
-					channel,
-					context,
-					{
-						authenticate: this.authenticate,
-						requestToken: this.requestToken,
-					}
-				);
+			vscodeClientContractWithContext.registerServer(channel, context, {
+				registerAsVsCodeInstance: this.registerAsVsCodeInstance,
+				authenticateClient: this.authenticateClient,
+				getConfigFileName: async () => ({
+					path: configPath,
+				}),
+				reloadConfig: async () => {
+					this.loadConfig();
+				},
+			});
 
-				channel.startListen();
-			}
-		);
+			authenticationContractWithContext.registerServer(channel, context, {
+				authenticate: this.authenticate,
+				requestToken: this.requestToken,
+			});
+
+			channel.startListen();
+		});
 
 		await server.onListening;
 	}
@@ -408,11 +413,11 @@ export class RegistrarServer {
 					vscodeServerPort: c.vscodeServerPort,
 				}));
 			},
-			chooseInstance: async () => {
-				return null;
+			chooseInstance: async ({}, { newErr }) => {
+				return newErr({ errorMessage: "Not implemented yet." });
 			},
-			lastActiveInstance: async () => {
-				return null;
+			lastActiveInstance: async ({}, { newErr }) => {
+				return newErr({ errorMessage: "Not implemented yet." });
 			},
 		});
 
@@ -424,6 +429,7 @@ export class RegistrarServer {
 			);
 		});
 
+		this.normalClients.set(client.id, client);
 		for (const vsCode of this.vsCodeClients.values()) {
 			vsCode.client.clientConnected({
 				clientId: client.id,
@@ -431,15 +437,14 @@ export class RegistrarServer {
 			});
 		}
 
-		this.normalClients.set(client.id, client);
 		client.stream.onClosed.then(() => {
+			this.normalClients.delete(client.id);
 			for (const vsCode of this.vsCodeClients.values()) {
 				vsCode.client.clientDisconnected({
 					clientId: client.id,
 					newClientCount: this.normalClients.size,
 				});
 			}
-			this.normalClients.delete(client.id);
 		});
 	};
 }
