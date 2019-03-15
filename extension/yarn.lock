@@ -41,9 +41,9 @@
     isomorphic-ws "^4.0.1"
 
 "@hediet/typed-json-rpc@^0.3.0", "@hediet/typed-json-rpc@^0.3.7":
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.3.12.tgz#a7f406d3c31049b67a39a1a0a4fc1aed4e78e794"
-  integrity sha512-cKCAL4I3TchRoELIASJlcqjjCWtFUuhG9b5KD1o2tFh7Ha8zPzCsSHRBBO/qtPWk/QEVmwyXVn+MCEVply2gSQ==
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.3.13.tgz#4ac87755738fa38ca7cdd80b3011e38df73a5b60"
+  integrity sha512-YWerrpP4wbxpHlkEsenbfuVjYfBiu8PczIMIS/UawndgXOL1H2b45vYbcBnpjD/3q/doioGnBQ9Ac5KvGaiEpQ==
   dependencies:
     io-ts "^1.7.0"
 
@@ -910,19 +910,14 @@ inherits@2, inherits@^2.0.1, inherits@^2.0.3, inherits@~2.0.0, inherits@~2.0.1, 
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
 io-ts-types@^0.4.3:
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/io-ts-types/-/io-ts-types-0.4.3.tgz#c1a558cf7896d054e4251973b4405c30b38813bf"
-  integrity sha512-dE2dUBRcwBZojfs5eUBYw09vF7e6iXI+Q3rtGQ+W29ndJ+ygiZKIg9D2+y7e4Lo09WvInSvt/VbXzffy9SAX/g==
-  dependencies:
-    fp-ts "^1.0.0"
-    io-ts "^1.7.1"
-    monocle-ts "^1.0.0"
-    newtype-ts "^0.2.1"
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/io-ts-types/-/io-ts-types-0.4.4.tgz#e9809dde8d25257cf164ec18fad3e8e43b761d40"
+  integrity sha512-VOkqBu2yZOgy70x2/pIzlDWwMJZ6+ME1Uu+HGV26Sn8e3tJQd/iOqZ62ZOmgP/C1wSPcukygqe10e0pYOyMbxQ==
 
-io-ts@^1.7.0, io-ts@^1.7.1, io-ts@^1.8.2:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-1.8.2.tgz#4fe3878c147c9851604d36982ee6f64d3e6a4a1e"
-  integrity sha512-BvP7iC4bgum5e3Fh82xCUrKWt739osKjmQBMORGij2AOMfTmevj8SEqBhN8EeI0GEwIMHb2bXe4fuikN0lsTWg==
+io-ts@^1.7.0, io-ts@^1.8.2:
+  version "1.8.3"
+  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-1.8.3.tgz#b617159ad030b5c85e14192ffbf24dd054030b38"
+  integrity sha512-zrZRpGNqbuMu8LWJ7lNNQpgdjIiOsNsIfzk8CJpeuVmdnNExGBpb5Wwtp+G9gmMOzLqj4+iFA7+HiFGLzqgBFQ==
   dependencies:
     fp-ts "^1.0.0"
 
@@ -1169,7 +1164,7 @@ mocha@^4.0.1:
     mkdirp "0.5.1"
     supports-color "4.4.0"
 
-monocle-ts@^1.0.0:
+monocle-ts@^1.0.0, monocle-ts@^1.7.1:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/monocle-ts/-/monocle-ts-1.7.1.tgz#03a615938aa90983a4fa29749969d30f72d80ba1"
   integrity sha512-X9OzpOyd/R83sYex8NYpJjUzi/MLQMvGNVfxDYiIvs+QMXMEUDwR61MQoARFN10Cqz5h/mbFSPnIQNUIGhYd2Q==
@@ -1189,7 +1184,7 @@ multimatch@^2.0.0:
     arrify "^1.0.0"
     minimatch "^3.0.0"
 
-newtype-ts@^0.2.1:
+newtype-ts@^0.2.4:
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/newtype-ts/-/newtype-ts-0.2.4.tgz#a02a8f160a3d179f871848d687a93de73a964a41"
   integrity sha512-HrzPdG0+0FK1qHbc3ld/HXu252OYgmN993bFxUtZ6NFCLUk1eq+yKwdvP07BblXQibGqMWNXBUrNoLUq23Ma2Q==
@@ -1740,9 +1735,9 @@ type-detect@4.0.8, type-detect@^4.0.0, type-detect@^4.0.5:
   integrity sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==
 
 typescript@^3.4.0-dev.20190314:
-  version "3.4.0-dev.20190314"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.0-dev.20190314.tgz#f270e15f86300c29faad3ebc2540b1e5e7035d65"
-  integrity sha512-UV2x1s6cObFUxCZdtViQNHA9WBmIIzY24mc++2mfjS6FpkuVWGHO7JpO8vi7fnhcRp+GadeXLlx8mKFtGdeeNg==
+  version "3.4.0-dev.20190315"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.0-dev.20190315.tgz#b427ed583541aa187ef073b711e5dc242edefca5"
+  integrity sha512-AmAGWYv52Bka/q20YNFy3jRiPMgAmWssti5uLTzFoPyuuzCd/GPmxm+j3iYm22ShrrDJw8biPxVDTq3DnOIaWA==
 
 unc-path-regex@^0.1.2:
   version "0.1.2"

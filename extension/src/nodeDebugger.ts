@@ -95,7 +95,7 @@ export class NodeDebugServer extends DisposableComponent {
 						},
 					},
 					{
-						caption: `Ignore`,
+						caption: `Continue`,
 						action: () => {
 							b.unlock({ attach: false });
 						},

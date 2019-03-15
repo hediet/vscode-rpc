@@ -14,7 +14,8 @@ import { Type, string, literal, union, boolean } from "io-ts";
 class ExternParam<TParamName extends string, TType> {
 	constructor(
 		public readonly paramName: TParamName,
-		public readonly type: RuntimeJsonType<TType>
+		public readonly type: RuntimeJsonType<TType>,
+		public readonly defaultValue: () => TType
 	) {}
 
 	public get TType(): TType {
@@ -29,6 +30,9 @@ class ExternParam<TParamName extends string, TType> {
 	}
 
 	public get(target: JSONObject): TType {
+		if (!(this.paramName in target)) {
+			return this.defaultValue();
+		}
 		const val = target[this.paramName];
 		const r = this.type.decode(val);
 		if (r.isLeft()) {
@@ -42,8 +46,17 @@ class ExternParam<TParamName extends string, TType> {
 function paramDef<TParamName extends string, TType>(def: {
 	paramName: TParamName;
 	type: RuntimeJsonType<TType>;
+	defaultValue?: TType;
 }): ExternParam<TParamName, TType> {
-	return new ExternParam(def.paramName, def.type);
+	return new ExternParam(
+		def.paramName,
+		def.type,
+		"defaultValue" in def
+			? () => def.defaultValue!
+			: () => {
+					throw new Error("No value");
+			  }
+	);
 }
 
 export const sourceClientIdParam = paramDef({
@@ -54,6 +67,7 @@ export const sourceClientIdParam = paramDef({
 export const serverToServerParam = paramDef({
 	paramName: "$serverToServer",
 	type: boolean,
+	defaultValue: false,
 });
 
 type ExtendServerContract<

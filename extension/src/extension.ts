@@ -153,7 +153,7 @@ class Extension extends DisposableComponent {
 			);
 
 			proc.stderr.on("data", chunk => {
-				console.log("data", chunk);
+				console.log("data", chunk.toString("utf8"));
 			});
 		});
 	}
