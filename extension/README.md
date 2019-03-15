@@ -4,9 +4,10 @@ This extension adds a JSON RPC remote interface to VS Code.
 
 ## Features
 
--   Launches a registrar-server that coordinates how to broadcast and connect to multiple vs code instances
--   Implements token based security
--   See the library `vscode-rpc` on npm on how to programmatically control vscode
+-   Launches a registrar-server that coordinates how to broadcast and connect to multiple vs code instances.
+-   Implements token based security.
+-   See the library `vscode-rpc` on npm on how to programmatically control vscode.
+-   Support for [easy-attach](https://github.com/hediet/easy-attach)
 
 ## Requirements
 

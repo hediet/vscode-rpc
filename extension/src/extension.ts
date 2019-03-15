@@ -29,6 +29,7 @@ import {
 import { DisposableComponent } from "@hediet/std/disposable";
 import { registrarCliContract } from "./registrar/contract";
 import { NodeJsMessageStream } from "@hediet/typed-json-rpc-streams";
+import { startRegistrarProcessIfNotRunning } from "./registrar";
 
 class Extension extends DisposableComponent {
 	private readonly outputChannel: OutputChannel;
@@ -72,7 +73,7 @@ class Extension extends DisposableComponent {
 	}
 
 	private async startServer() {
-		await this.startRegistrarProcessIfNotRunning();
+		await startRegistrarProcessIfNotRunning();
 
 		const registrarClient = await WebSocketStream.connectTo({
 			host: "localhost",
@@ -124,38 +125,6 @@ class Extension extends DisposableComponent {
 		this.addDisposable(server);
 
 		window.showInformationMessage("RPC Server ready");
-	}
-
-	private startRegistrarProcessIfNotRunning(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			const proc = spawn("node", [join(__dirname, "./registrar/app")], {
-				detached: true,
-				shell: false,
-				windowsHide: true,
-			});
-			proc.on("error", e => {
-				console.error("error", e);
-			});
-			proc.on("close", e => {
-				console.log("closed", e);
-			});
-
-			registrarCliContract.getServerFromStream(
-				NodeJsMessageStream.connectToProcess(proc),
-				undefined,
-				{
-					log: async ({ message }) =>
-						console.log("Log from Server: ", message),
-					error: async ({ message }) =>
-						console.error("Error from Server: ", message),
-					started: async ({ succesful }) => resolve(),
-				}
-			);
-
-			proc.stderr.on("data", chunk => {
-				console.log("data", chunk.toString("utf8"));
-			});
-		});
 	}
 
 	private readonly clients = new Set<VscodeClient>();

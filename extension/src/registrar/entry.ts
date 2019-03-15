@@ -1,4 +1,4 @@
-import { RegistrarServer } from ".";
+import { RegistrarServer } from "./RegistrarServer";
 import { NodeJsMessageStream } from "@hediet/typed-json-rpc-streams";
 import { registrarCliContract } from "./contract";
 
