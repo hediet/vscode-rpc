@@ -3,7 +3,7 @@
 	"displayName": "VSCode RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
-	"version": "0.1.0",
+	"version": "0.9.0",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
@@ -44,11 +44,11 @@
 		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
 	},
 	"dependencies": {
-		"@hediet/std": "^0.1.8",
-		"@hediet/typed-json-rpc": "^0.3.7",
-		"@hediet/typed-json-rpc-streams": "^0.3.1",
-		"@hediet/typed-json-rpc-websocket": "^0.3.0",
-		"@hediet/typed-json-rpc-websocket-server": "^0.3.0",
+		"@hediet/std": "^0.2.0",
+		"@hediet/typed-json-rpc": "^0.5.0",
+		"@hediet/typed-json-rpc-streams": "^0.5.0",
+		"@hediet/typed-json-rpc-websocket": "^0.5.0",
+		"@hediet/typed-json-rpc-websocket-server": "^0.5.0",
 		"@types/crypto-hash": "^1.0.0",
 		"@types/crypto-random-string": "^1.0.0",
 		"@types/env-paths": "^1.0.2",
@@ -63,7 +63,7 @@
 		"mkdir-recursive": "^0.4.0",
 		"monocle-ts": "^1.7.1",
 		"newtype-ts": "^0.2.4",
-		"vscode-rpc": "^0.2.0"
+		"vscode-rpc": "^0.9.0"
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.42",
