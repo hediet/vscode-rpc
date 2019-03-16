@@ -3,7 +3,7 @@
 	"displayName": "VSCode RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
@@ -13,6 +13,7 @@
 		"email": "henning.dieterichs@live.de",
 		"name": "Henning Dieterichs"
 	},
+	"readme": "./README.md",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/hediet/vscode-rpc-server.git"

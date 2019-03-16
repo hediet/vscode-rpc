@@ -1,7 +1,4 @@
 {
-	"files.exclude": {
-		"extension/out": true
-	},
 	"search.exclude": {
 		"extension/out": true
 	},
