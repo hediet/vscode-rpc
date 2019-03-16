@@ -2,48 +2,48 @@
 # yarn lockfile v1
 
 
-"@hediet/std@^0.1.10", "@hediet/std@^0.1.11", "@hediet/std@^0.1.8":
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/@hediet/std/-/std-0.1.12.tgz#4eb4d9364ca1aa001e09653a2ccf6fe3096f3380"
-  integrity sha512-iFIAAc+RQQPE85yWFHiuLhtPytdH7Oj18PMxINU84JDKeUlnfyNyPj4g/FGVtqgWkYGH4hfH2qz6ccCO29wRAg==
+"@hediet/std@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@hediet/std/-/std-0.2.0.tgz#5c55d95a38f7924d07dd9600330263f4352e0615"
+  integrity sha512-DIbIDvI7g7a1e11Gs7HCAN0s8YvyKQ78ZSpdWr/LZDOz1FTXXgdxKTyQhYZy31F1oCXzVJwoUCNrxnrNLfsdZw==
   dependencies:
     "@types/chai" "^4.1.7"
     "@types/sinon" "^7.0.10"
     chai "^4.2.0"
     sinon "^7.2.7"
 
-"@hediet/typed-json-rpc-streams@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-streams/-/typed-json-rpc-streams-0.3.1.tgz#21d747df3ee5a92ede5a14653696cceba09b3799"
-  integrity sha512-L+7CcqXsfZiqmyKazjWwDE3/ykAToCJqqDzqzgH9R5T2U+2P6yVx1J9oBpb1GDl6pkQylwlM93cOd4ox7LrrYQ==
+"@hediet/typed-json-rpc-streams@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-streams/-/typed-json-rpc-streams-0.5.0.tgz#d7d50bbfe8629e69fff8181742ccec82a980f842"
+  integrity sha512-OPoF0S0vxDCmRK41KWOYClB68MxLWN4IIFya9G9rczTk9BPQIoQr9F344KLGE1b8vOk77AV0FgjQ0kziu5aXXQ==
   dependencies:
-    "@hediet/std" "^0.1.11"
-    "@hediet/typed-json-rpc" "^0.3.0"
+    "@hediet/std" "^0.2.0"
+    "@hediet/typed-json-rpc" "^0.5.0"
     "@types/node" "^11.11.3"
 
-"@hediet/typed-json-rpc-websocket-server@^0.3.0":
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket-server/-/typed-json-rpc-websocket-server-0.3.13.tgz#6738228d052bce14fb52a2d311b902bde8eee83a"
-  integrity sha512-FVi5YNr82xhflquKRyeFeoNl48ZnDuG1uKYSc6MSOwYL1VM2EJl6anzrCjm44bd1tE4Vo8oqIcrksmbbdsUGYQ==
+"@hediet/typed-json-rpc-websocket-server@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket-server/-/typed-json-rpc-websocket-server-0.5.0.tgz#7c08d6cb523608be95c4fd3524d668dd0d74cce6"
+  integrity sha512-rJGtpgP4pay84Axzi3GFT4RLgl92UqdBbGMGqS83XvozM9jdtZJv/4EY8z7uegO/NvpfWsN5gBkFxQpfEWgMoQ==
   dependencies:
-    "@hediet/std" "^0.1.10"
-    "@hediet/typed-json-rpc" "^0.3.0"
+    "@hediet/std" "^0.2.0"
+    "@hediet/typed-json-rpc" "^0.5.0"
     "@types/ws" "^6.0.1"
     ws "^6.1.3"
 
-"@hediet/typed-json-rpc-websocket@^0.3.0":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket/-/typed-json-rpc-websocket-0.3.1.tgz#9dea576e72a435ebf8aa8d9a7a996c25a7c1fc10"
-  integrity sha512-2R1bDRUZG0jPuX9YH4ukEjhAhB6FHF0W4voah0nDmdwA+t4pY6gtzT2T5wZbvNsYU7wz4pFcOQtc2JFYdFPu0w==
+"@hediet/typed-json-rpc-websocket@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc-websocket/-/typed-json-rpc-websocket-0.5.0.tgz#ac537de8f2c9849936fd78b44fe8f7ebad7df37e"
+  integrity sha512-SOfAb+Mu2SRqXsFO5UTKwibV/TMD9jINjUS8gjJkNGv3nXGo5NweC17tMf3dxVPfp3cBiLZsa4EOkgGG99sSVA==
   dependencies:
-    "@hediet/typed-json-rpc" "^0.3.0"
+    "@hediet/typed-json-rpc" "^0.5.0"
     "@types/ws" "^6.0.1"
     isomorphic-ws "^4.0.1"
 
-"@hediet/typed-json-rpc@^0.3.0", "@hediet/typed-json-rpc@^0.3.7":
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.3.13.tgz#4ac87755738fa38ca7cdd80b3011e38df73a5b60"
-  integrity sha512-YWerrpP4wbxpHlkEsenbfuVjYfBiu8PczIMIS/UawndgXOL1H2b45vYbcBnpjD/3q/doioGnBQ9Ac5KvGaiEpQ==
+"@hediet/typed-json-rpc@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@hediet/typed-json-rpc/-/typed-json-rpc-0.5.0.tgz#92c83d180486d55b10039ee547745f22963c5735"
+  integrity sha512-SRIlBeSQF52VpD1rvkvez5ol0iIZbQETSmirh+BLoaA1+bjZOHFwWQLZRXD+CWpnCVUG20rTcEKBkRWSLCWvww==
   dependencies:
     io-ts "^1.7.0"
 
@@ -1864,13 +1864,13 @@ vinyl@^2.0.0, vinyl@^2.0.1, vinyl@^2.0.2:
     remove-trailing-separator "^1.0.1"
     replace-ext "^1.0.0"
 
-vscode-rpc@^0.2.0:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/vscode-rpc/-/vscode-rpc-0.2.4.tgz#3692becafc0fb3d13a564b6f9dfcbe456435aa8f"
-  integrity sha512-7TUqN2znnIh1iUyCS6wo9D8EeSZGUJXrPP0FQlsd4TMsmzHZtKhRdyaC3LW/k8lgdi2b9o7V+Btx+Kp1+8jWKQ==
+vscode-rpc@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/vscode-rpc/-/vscode-rpc-0.9.0.tgz#d446732a92eda4da25824342fa8d47a033002695"
+  integrity sha512-vJlOjI1VS1icOXkeaAWqV9hoHEc0y0uQ1QL7OzkReqi4P9WJCmwr1N4ns39SJrQbR2w0Vgv/0L9DumsFal5FBQ==
   dependencies:
-    "@hediet/typed-json-rpc" "^0.3.0"
-    "@hediet/typed-json-rpc-websocket" "^0.3.0"
+    "@hediet/typed-json-rpc" "^0.5.0"
+    "@hediet/typed-json-rpc-websocket" "^0.5.0"
     env-paths "^2.1.0"
     mkdir-recursive "^0.4.0"
     ws "^6.2.0"
