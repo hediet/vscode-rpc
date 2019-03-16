@@ -18,15 +18,20 @@ This extension adds a JSON RPC remote interface to VS Code.
 
 -   Adds commands for editing and reloading the server config.
 
+## Easy Attach
+
+![Easy Attach Demo](docs/easy-attach.gif)
+
 ## Requirements
 
 -   Port `56024` must be free.
 
-## Planned
+## TODO
 
 -   Virtual Files
 -   Browser access (by enabling CORS): So you can forward text areas to VS Code
 -   Better documentation
+-   Better UI when there are multiple debug targets
 
 ## Implementation Details
 
