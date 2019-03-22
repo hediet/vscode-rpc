@@ -1,6 +1,6 @@
 {
 	"name": "vscode-rpc-server",
-	"displayName": "VSCode RPC Server",
+	"displayName": "VS Code RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
 	"version": "0.9.1",
@@ -35,7 +35,19 @@
 				"title": "Reload RPC Server Configuration",
 				"command": "vscode-rpc-server.reload-server-config"
 			}
-		]
+		],
+		"configuration": {
+			"title": "RPC Config",
+			"properties": {
+				"rpcServer.nodeDebugger.autoAttachLabels": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "Attaches VS Code automatically to debug targets with these labels"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",

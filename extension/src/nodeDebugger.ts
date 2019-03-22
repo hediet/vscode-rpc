@@ -1,11 +1,12 @@
 import { TypedChannel, MessageStream } from "@hediet/typed-json-rpc";
-import { nodeDebuggerContract } from "vscode-rpc";
+import { nodeDebuggerContract, authenticationContract } from "vscode-rpc";
 import {
 	OutputChannel,
 	DebugConfiguration,
 	debug,
 	StatusBarAlignment,
 	Disposable,
+	workspace,
 } from "vscode";
 import { StatusBarOptionService } from "./StatusBarOptionService";
 import { Barrier } from "@hediet/std/synchronization";
@@ -17,7 +18,9 @@ const dispatchedNodeDebuggerContract = dispatched(nodeDebuggerContract);
 type Contract = typeof dispatchedNodeDebuggerContract;
 type Server = Contract["TServerInterface"];
 
+const autoAttachLabelsKey = "rpcServer.nodeDebugger.autoAttachLabels";
 export class NodeDebugServer extends DisposableComponent {
+	private autoAttachLabels = new Set<string>();
 	private readonly clients = new Set<Contract["TClientInterface"]>();
 	constructor(
 		private readonly outputChannel: OutputChannel,
@@ -25,6 +28,19 @@ export class NodeDebugServer extends DisposableComponent {
 	) {
 		super();
 		this.addDisposable(this.statusBarService);
+
+		this.reloadConfig();
+		this.addDisposable(
+			workspace.onDidChangeConfiguration(() => {
+				this.reloadConfig();
+			})
+		);
+	}
+
+	private reloadConfig() {
+		const c = workspace.getConfiguration();
+		const autoAttachLabelsArr = c.get<string[]>(autoAttachLabelsKey) || [];
+		this.autoAttachLabels = new Set(autoAttachLabelsArr);
 	}
 
 	private readonly statusBarService = new StatusBarOptionService({
@@ -82,27 +98,32 @@ export class NodeDebugServer extends DisposableComponent {
 	}) => {
 		const b = new Barrier<{ attach: boolean }>();
 
-		this.openRequestsByTargetId.set(
-			targetId,
-			this.statusBarService.addOptions({
-				options: [
-					{
-						caption: `$(bug) Debug Node Process${
-							name ? ` "${name}"` : ""
-						}`,
-						action: () => {
-							b.unlock({ attach: true });
+		if (name && this.autoAttachLabels.has(name)) {
+			b.unlock({ attach: true });
+		} else {
+			this.openRequestsByTargetId.set(
+				targetId,
+				this.statusBarService.addOptions({
+					options: [
+						{
+							caption: `$(bug) Debug Node Process${
+								name ? ` "${name}"` : ""
+							}`,
+							action: () => {
+								b.unlock({ attach: true });
+							},
 						},
-					},
-					{
-						caption: `Continue`,
-						action: () => {
-							b.unlock({ attach: false });
+						{
+							caption: `Continue`,
+							action: () => {
+								b.unlock({ attach: false });
+							},
 						},
-					},
-				],
-			})
-		);
+					],
+				})
+			);
+		}
+
 		let client = this.targetIdsByClientId.get($sourceClientId);
 		if (!client) {
 			client = [];
