@@ -200,7 +200,7 @@ export const revealTextContract = contract([BroadcastContract], {
 		revealText: notificationContract({
 			params: t.type({
 				fileName: t.string,
-				range: t.union([lineBasedTextRange, textRange]),
+				range: t.union([lineBasedTextRange, textRange, t.null]),
 			}),
 		}),
 	},
