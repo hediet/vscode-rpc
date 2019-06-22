@@ -3,13 +3,13 @@ import {
 	ContractObject,
 	Contract,
 	AsOneSideContract,
-	JSONArray,
 	AnyRequestContract,
-	AsRequestContract,
 	JSONObject,
 	RuntimeJsonType,
+	NotificationType,
+	RequestType,
 } from "@hediet/typed-json-rpc";
-import { Type, string, literal, union, boolean } from "io-ts";
+import { string, boolean } from "io-ts";
 
 class ExternParam<TParamName extends string, TType> {
 	constructor(
@@ -76,29 +76,21 @@ type ExtendServerContract<
 	{
 		[TRequest in keyof TRequestMap]: TRequestMap[TRequest] extends AnyRequestContract
 			? MapRequest<TRequestMap[TRequest]>
-			: {
-					kind: "notification";
-					params: Type<
-						TRequestMap[TRequest]["params"]["_A"] &
-							typeof sourceClientIdParam.TExtra &
-							typeof serverToServerParam.TExtra,
-						JSONArray | JSONObject
-					>;
-			  }
+			: NotificationType<
+					TRequestMap[TRequest]["paramType"]["_A"] &
+						typeof sourceClientIdParam.TExtra &
+						typeof serverToServerParam.TExtra
+			  >
 	}
 >;
 
-type MapRequest<TRequest extends AnyRequestContract> = AsRequestContract<{
-	kind: "request";
-	params: Type<
-		TRequest["params"]["_A"] & {
-			$sourceClientId: string;
-		},
-		JSONArray | JSONObject
-	>;
-	result: TRequest["result"];
-	error: TRequest["error"];
-}>;
+type MapRequest<TRequest extends AnyRequestContract> = RequestType<
+	TRequest["paramType"]["_A"] & {
+		$sourceClientId: string;
+	},
+	TRequest["resultType"]["_A"],
+	TRequest["errorType"]["_A"]
+>;
 
 export function dispatched<
 	TTags extends string,

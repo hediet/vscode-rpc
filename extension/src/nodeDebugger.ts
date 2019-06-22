@@ -1,46 +1,44 @@
 import { TypedChannel, MessageStream } from "@hediet/typed-json-rpc";
-import { nodeDebuggerContract, authenticationContract } from "vscode-rpc";
+import { nodeDebuggerContract } from "vscode-rpc";
 import {
 	OutputChannel,
 	DebugConfiguration,
 	debug,
 	StatusBarAlignment,
-	Disposable,
-	workspace,
 } from "vscode";
 import { StatusBarOptionService } from "./StatusBarOptionService";
 import { Barrier } from "@hediet/std/synchronization";
 import { dispatched } from "./contractTransformer";
-import { DisposableComponent } from "@hediet/std/disposable";
+import { Disposable } from "@hediet/std/disposable";
+import { Config } from "./Config";
 
 const dispatchedNodeDebuggerContract = dispatched(nodeDebuggerContract);
 
 type Contract = typeof dispatchedNodeDebuggerContract;
 type Server = Contract["TServerInterface"];
 
-const autoAttachLabelsKey = "rpcServer.nodeDebugger.autoAttachLabels";
-export class NodeDebugServer extends DisposableComponent {
+export class NodeDebugServer {
 	private autoAttachLabels = new Set<string>();
 	private readonly clients = new Set<Contract["TClientInterface"]>();
+	public dispose = Disposable.fn();
+
 	constructor(
 		private readonly outputChannel: OutputChannel,
-		private readonly registrarServer: TypedChannel
+		private readonly registrarServer: TypedChannel,
+		private readonly config: Config
 	) {
-		super();
-		this.addDisposable(this.statusBarService);
+		this.dispose.track(this.statusBarService);
 
-		this.reloadConfig();
-		this.addDisposable(
-			workspace.onDidChangeConfiguration(() => {
+		this.dispose.track(
+			config.onChange.sub(() => {
 				this.reloadConfig();
 			})
 		);
+		this.reloadConfig();
 	}
 
 	private reloadConfig() {
-		const c = workspace.getConfiguration();
-		const autoAttachLabelsArr = c.get<string[]>(autoAttachLabelsKey) || [];
-		this.autoAttachLabels = new Set(autoAttachLabelsArr);
+		this.autoAttachLabels = new Set(this.config.getAutoAttachLabels());
 	}
 
 	private readonly statusBarService = new StatusBarOptionService({
@@ -50,10 +48,13 @@ export class NodeDebugServer extends DisposableComponent {
 	});
 
 	public handleClient(channel: TypedChannel, stream: MessageStream) {
-		const client = dispatchedNodeDebuggerContract.registerServer(channel, {
-			addNodeDebugTarget: this.addNodeDebugTarget,
-			removeNodeDebugTarget: this.removeNodeDebugTarget,
-		});
+		const { client } = dispatchedNodeDebuggerContract.registerServer(
+			channel,
+			{
+				addNodeDebugTarget: this.addNodeDebugTarget,
+				removeNodeDebugTarget: this.removeNodeDebugTarget,
+			}
+		);
 		this.clients.add(client);
 
 		stream.onClosed.then(() => {

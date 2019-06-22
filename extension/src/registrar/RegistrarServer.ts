@@ -87,7 +87,7 @@ export class RegistrarServer {
 	private readonly normalClients = new Map<string, NormalClient>();
 	private id: number = 0;
 	private accessId: number = 0;
-	private readonly secret = cryptoRandomString(20);
+	private readonly secret = cryptoRandomString({ length: 20 });
 	private allowedClients = new Array<typeof allowedClient["_A"]>();
 	private rpcLogger: RpcLogger;
 
@@ -162,7 +162,7 @@ export class RegistrarServer {
 	}
 
 	private createToken(): string {
-		return cryptoRandomString(20);
+		return cryptoRandomString({ length: 20 });
 	}
 
 	private hashToken(token: string) {
@@ -224,7 +224,7 @@ export class RegistrarServer {
 
 	private readonly registerAsVsCodeInstance: typeof vscodeClientContractWithContext.TServerHandler.registerAsVsCodeInstance = async (
 		{ name, vscodeServerPort },
-		{ context, counterPart, newErr }
+		{ context, counterpart, newErr }
 	) => {
 		if (context.client.type !== "unauthorized") {
 			return newErr({
@@ -233,7 +233,7 @@ export class RegistrarServer {
 			});
 		}
 
-		const { content } = await counterPart.authenticateVsCodeInstance({
+		const { content } = await counterpart.authenticateVsCodeInstance({
 			filePathToRead: secretPath,
 		});
 
@@ -246,7 +246,7 @@ export class RegistrarServer {
 		context.client = {
 			type: "vscode",
 			name,
-			client: counterPart,
+			client: counterpart,
 			vscodeServerPort,
 			id: context.client.id,
 			channel: context.client.channel,

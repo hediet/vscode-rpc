@@ -1,12 +1,6 @@
-import {
-	StatusBarAlignment,
-	window,
-	Disposable,
-	commands,
-	StatusBarItem,
-} from "vscode";
+import { StatusBarAlignment, window, commands, StatusBarItem } from "vscode";
 import { getParametrizedCommand } from "./CommandsService";
-import { DisposableComponent } from "@hediet/std/disposable";
+import { Disposable } from "@hediet/std/disposable";
 
 const resolveOptionCommandId = (id: string) => "resolve-option-" + id;
 
@@ -20,16 +14,25 @@ export interface Config {
 	priority: number;
 }
 
-export class StatusBarOptionService extends DisposableComponent {
+export class StatusBarOptionService {
 	private static curId = 0;
 	private readonly registeredOptions = new Map<
 		number,
 		{ options: Options; disposable: Disposable }
 	>();
+	public readonly dispose = Disposable.fn();
 
 	constructor(private readonly config: Config) {
-		super();
-		this.addDisposable(
+		this.dispose.track({
+			dispose: () => {
+				for (const options of this.registeredOptions.values()) {
+					options.disposable.dispose();
+				}
+				this.registeredOptions.clear();
+			},
+		});
+
+		this.dispose.track(
 			commands.registerCommand(
 				resolveOptionCommandId(config.id),
 				(id: number, optionId: number) => {
@@ -75,7 +78,7 @@ export class StatusBarOptionService extends DisposableComponent {
 			optionIdx++;
 		}
 
-		const disposable = new Disposable(() => {
+		const disposable = Disposable.create(() => {
 			for (const disp of disposables) {
 				disp.dispose();
 			}
@@ -88,14 +91,5 @@ export class StatusBarOptionService extends DisposableComponent {
 		this.registeredOptions.set(id, { options, disposable });
 
 		return disposable;
-	}
-
-	dispose() {
-		for (const options of this.registeredOptions.values()) {
-			options.disposable.dispose();
-		}
-		this.registeredOptions.clear();
-
-		super.dispose();
 	}
 }

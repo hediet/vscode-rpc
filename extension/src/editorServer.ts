@@ -1,20 +1,10 @@
 import { MessageStream, TypedChannel } from "@hediet/typed-json-rpc";
-import { DecorationOptions, Position, Range, ThemeColor, window } from "vscode";
-import { editorContract, textPosition, textRange } from "vscode-rpc";
+import { DecorationOptions, ThemeColor, window } from "vscode";
+import { editorContract } from "vscode-rpc";
+import { translateSpan } from "./position";
 
 type Contract = typeof editorContract;
 type Server = Contract["TServerInterface"];
-
-function translatePosition(position: typeof textPosition._A): Position {
-	return new Position(position.line, position.character);
-}
-
-function translateSpan(span: typeof textRange._A): Range {
-	return new Range(
-		translatePosition(span.start),
-		translatePosition(span.end)
-	);
-}
 
 export class EditorServer {
 	private readonly highlightDecorationType = window.createTextEditorDecorationType(
@@ -50,7 +40,7 @@ export class EditorServer {
 		const editor = window.activeTextEditor;
 		if (editor) {
 			editor.setDecorations(this.highlightDecorationType, [
-				translateSpan(range),
+				translateSpan(range, editor.document),
 			]);
 		}
 	};

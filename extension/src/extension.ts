@@ -1,6 +1,5 @@
 import { startWebSocketServer } from "@hediet/typed-json-rpc-websocket-server";
 import {
-	Disposable,
 	window,
 	OutputChannel,
 	ExtensionContext,
@@ -19,7 +18,7 @@ import {
 } from "vscode-rpc";
 import { readFileSync } from "fs";
 import { StatusBarOptionService } from "./StatusBarOptionService";
-import getPort from "get-port";
+import * as getPort from "get-port";
 import { Barrier } from "@hediet/std/synchronization";
 import {
 	RpcLogger,
@@ -27,20 +26,25 @@ import {
 	MessageStream,
 	RpcStreamLogger,
 } from "@hediet/typed-json-rpc";
-import { DisposableComponent } from "@hediet/std/disposable";
+import { Disposable } from "@hediet/std/disposable";
 import { startRegistrarProcessIfNotRunning } from "./registrar";
+import { Config } from "./Config";
+import { RevealTextServer } from "./RevealTextServer";
 
-class Extension extends DisposableComponent {
+class Extension {
 	private readonly outputChannel: OutputChannel;
 	private readonly rpcLogger: RpcLogger;
 	private readonly editorServer: EditorServer;
+	private readonly revealTextServer = new RevealTextServer();
 	private nodeDebugServer!: NodeDebugServer;
 	private registrar!: typeof vscodeClientContract.TServerInterface;
+	private config = new Config();
+
+	public dispose = Disposable.fn();
 
 	constructor() {
-		super();
 		this.outputChannel = window.createOutputChannel("RPC Server Log");
-		this.addDisposable(this.outputChannel);
+		this.dispose.track(this.outputChannel);
 
 		this.rpcLogger = {
 			debug: args => this.outputChannel.appendLine(args.text),
@@ -60,8 +64,8 @@ class Extension extends DisposableComponent {
 			);
 		});
 
-		this.addDisposable(this.authStatusBar);
-		this.addDisposable({
+		this.dispose.track(this.authStatusBar);
+		this.dispose.track({
 			dispose: () => {
 				for (const opt of this.allowAccessStatusBarItems.values()) {
 					opt.dispose();
@@ -70,7 +74,7 @@ class Extension extends DisposableComponent {
 			},
 		});
 
-		this.addDisposable(
+		this.dispose.track([
 			commands.registerCommand(
 				"vscode-rpc-server.open-server-config",
 				async () => {
@@ -78,17 +82,14 @@ class Extension extends DisposableComponent {
 					const d = await workspace.openTextDocument(path);
 					window.showTextDocument(d, ViewColumn.Active);
 				}
-			)
-		);
-
-		this.addDisposable(
+			),
 			commands.registerCommand(
 				"vscode-rpc-server.reload-server-config",
 				async () => {
 					await this.registrar.reloadConfig({});
 				}
-			)
-		);
+			),
+		]);
 	}
 
 	private async startServer() {
@@ -98,7 +99,7 @@ class Extension extends DisposableComponent {
 			host: "localhost",
 			port: RegistrarPort,
 		});
-		this.addDisposable(registrarClient);
+		this.dispose.track(registrarClient);
 		const registrarStream = new RpcStreamLogger(
 			registrarClient,
 			this.rpcLogger
@@ -118,13 +119,15 @@ class Extension extends DisposableComponent {
 			cancelAccessRequest: this.cancelAccessRequest,
 			clientDisconnected: async ({ clientId }) =>
 				this.nodeDebugServer.onClientDisconnected(clientId),
-		});
+		}).server;
 
 		this.nodeDebugServer = new NodeDebugServer(
 			this.outputChannel,
-			registrarChannel
+			registrarChannel,
+			this.config
 		);
 		this.nodeDebugServer.handleClient(registrarChannel, registrarStream);
+		this.revealTextServer.handleClient(registrarChannel, registrarStream);
 
 		registrarChannel.startListen();
 		const port = await getPort();
@@ -141,9 +144,23 @@ class Extension extends DisposableComponent {
 			vscodeServerPort: server.port,
 		});
 
-		this.addDisposable(server);
+		this.dispose.track(server);
 
-		window.showInformationMessage("RPC Server ready");
+		if (this.config.getShowStartupMessage()) {
+			window
+				.showInformationMessage("RPC Server ready", {
+					title: "Don't show again",
+					kind: "DontShowAgain" as const,
+				})
+				.then(x => {
+					if (!x) {
+						return;
+					}
+					if (x.kind === "DontShowAgain") {
+						this.config.setShowStartupMessage(false);
+					}
+				});
+		}
 	}
 
 	private readonly clients = new Set<VscodeClient>();
@@ -162,6 +179,7 @@ class Extension extends DisposableComponent {
 
 				this.editorServer.handleClient(channel, stream);
 				this.nodeDebugServer.handleClient(channel, stream);
+				this.revealTextServer.handleClient(channel, stream);
 
 				stream.onClosed.then(() => {
 					this.clients.delete(client);
@@ -199,8 +217,6 @@ class Extension extends DisposableComponent {
 	}) => {
 		let b = new Barrier<{ accessGranted: boolean }>();
 
-		let x = 10;
-		x = x;
 		this.allowAccessStatusBarItems.set(
 			requestId,
 			this.authStatusBar.addOptions({

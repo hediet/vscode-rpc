@@ -3,7 +3,7 @@
 	"displayName": "VS Code RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
-	"version": "0.9.1",
+	"version": "0.13.0",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
@@ -45,6 +45,11 @@
 						"type": "string"
 					},
 					"description": "Attaches VS Code automatically to debug targets with these labels"
+				},
+				"rpcServer.showStartupMessage": {
+					"type": "boolean",
+					"description": "Show message when the RPC server successfully started",
+					"default": true
 				}
 			}
 		}
@@ -52,31 +57,31 @@
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
 		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
+		"dev": "tsc -watch -p ./",
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
 	},
 	"dependencies": {
-		"@hediet/std": "^0.2.0",
-		"@hediet/typed-json-rpc": "^0.5.0",
-		"@hediet/typed-json-rpc-streams": "^0.5.0",
-		"@hediet/typed-json-rpc-websocket": "^0.5.0",
-		"@hediet/typed-json-rpc-websocket-server": "^0.5.0",
-		"@types/crypto-hash": "^1.0.0",
-		"@types/crypto-random-string": "^1.0.0",
-		"@types/env-paths": "^1.0.2",
-		"@types/get-port": "^4.0.1",
+		"@hediet/std": "^0.6.0",
+		"@hediet/typed-json-rpc": "^0.7.7",
+		"@hediet/typed-json-rpc-streams": "^0.7.6",
+		"@hediet/typed-json-rpc-websocket": "^0.7.7",
+		"@hediet/typed-json-rpc-websocket-server": "^0.7.7",
+		"@types/crypto-hash": "^1.1.2",
+		"@types/crypto-random-string": "^2.0.0",
+		"@types/env-paths": "^2.1.0",
+		"@types/get-port": "^4.2.0",
 		"@types/ws": "^6.0.1",
-		"crypto-hash": "^1.0.0",
-		"crypto-random-string": "^1.0.0",
-		"env-paths": "^2.1.0",
-		"get-port": "^4.2.0",
-		"io-ts": "^1.8.2",
-		"io-ts-types": "^0.4.3",
+		"crypto-hash": "^1.2.1",
+		"crypto-random-string": "^3.0.1",
+		"env-paths": "^2.2.0",
+		"get-port": "^5.0.0",
+		"io-ts": "^1.10.2",
+		"io-ts-types": "^0.4.7",
 		"mkdir-recursive": "^0.4.0",
-		"monocle-ts": "^1.7.1",
-		"newtype-ts": "^0.2.4",
-		"vscode-rpc": "^0.9.0"
+		"monocle-ts": "^1.7.2",
+		"newtype-ts": "^0.3.1",
+		"vscode-rpc": "^0.13.0"
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.42",
