@@ -15,7 +15,7 @@ export class FileTokenStore implements TokenStore {
 		return undefined;
 	}
 
-	storeToken(token: string): void {
+	public storeToken(token: string): void {
 		writeFileSync(this.filePath, JSON.stringify({ token }));
 	}
 }

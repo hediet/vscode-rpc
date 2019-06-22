@@ -36,7 +36,7 @@ export class RegistrarClient extends Client {
 	) {
 		super(channel, stream);
 
-		this.registrar = registrarContract.getServer(channel, {});
+		this.registrar = registrarContract.getServer(channel, {}).server;
 	}
 
 	public readonly registrar: typeof registrarContract.TServerInterface;
@@ -96,7 +96,7 @@ async function connectAndAuthenticate(
 		);
 		channel.startListen();
 
-		const server = authenticationContract.getServer(channel, {});
+		const { server } = authenticationContract.getServer(channel, {});
 
 		const appName = options.appName;
 		let token: string | undefined = undefined;

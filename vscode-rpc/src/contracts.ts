@@ -150,11 +150,23 @@ export const nodeDebuggerContract = contract([BroadcastContract], {
 	},
 });
 
-export const textPosition = t.type({
+export const lineBasedTextPosition = t.type({
 	/** The zero based line */
 	line: t.Integer,
 	/** The zero based column */
 	character: t.Integer,
+});
+
+export const lineBasedTextRange = t.type({
+	/** The start position, including */
+	start: lineBasedTextPosition,
+	/* The end position, including */
+	end: lineBasedTextPosition,
+});
+
+export const textPosition = t.type({
+	/** The zero based position of the character within the document. */
+	position: t.Integer,
 });
 
 export const textRange = t.type({
@@ -169,7 +181,7 @@ export const editorContract = contract([VsCodeInstance], {
 		highlightLine: requestContract({ params: t.type({ line: t.Integer }) }),
 		highlight: requestContract({
 			params: t.type({
-				range: textRange,
+				range: lineBasedTextRange,
 			}),
 		}),
 		annotateLines: requestContract({
@@ -177,6 +189,18 @@ export const editorContract = contract([VsCodeInstance], {
 				annotations: t.array(
 					t.type({ line: t.Integer, text: t.string })
 				),
+			}),
+		}),
+	},
+	client: {},
+});
+
+export const revealTextContract = contract([BroadcastContract], {
+	server: {
+		revealText: notificationContract({
+			params: t.type({
+				fileName: t.string,
+				range: t.union([lineBasedTextRange, textRange]),
 			}),
 		}),
 	},

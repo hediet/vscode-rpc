@@ -1,6 +1,6 @@
 {
 	"name": "vscode-rpc",
-	"version": "0.9.0",
+	"version": "0.10.0",
 	"main": "./dist/index.js",
 	"files": [
 		"dist",
@@ -17,14 +17,15 @@
 		"url": "https://github.com/hediet/vscode-rpc-server.git"
 	},
 	"scripts": {
-		"dev": "tsc --watch"
+		"dev": "tsc --watch",
+		"build": "tsc"
 	},
 	"dependencies": {
-		"@hediet/typed-json-rpc": "^0.5.0",
-		"@hediet/typed-json-rpc-websocket": "^0.5.0",
-		"env-paths": "^2.1.0",
+		"@hediet/typed-json-rpc": "^0.7.7",
+		"@hediet/typed-json-rpc-websocket": "^0.7.7",
+		"env-paths": "^2.2.0",
 		"mkdir-recursive": "^0.4.0",
-		"ws": "^6.2.0"
+		"ws": "^7.0.1"
 	},
 	"devDependencies": {
 		"@types/node": "^11.10.5"
