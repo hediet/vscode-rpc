@@ -1,0 +1,8 @@
+// does not work until https://github.com/yarnpkg/yarn/issues/6175 is fixed
+{
+	"private": true,
+	"workspaces": [
+		"vscode-rpc",
+		"extension"
+	]
+}

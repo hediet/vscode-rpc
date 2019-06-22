@@ -1,4 +1,8 @@
-import { connectToVsCode, editorContract } from "vscode-rpc";
+import {
+	connectToVsCode,
+	editorContract,
+	revealTextContract,
+} from "vscode-rpc";
 import {
 	FileTokenStore,
 	GlobalTokenStore,
@@ -14,6 +18,21 @@ async function main() {
 		});
 		track(client);
 
+		const s = revealTextContract.getServer(client.channel, {}).server;
+		await s.revealText({
+			fileName: "S:\\dev\\ts\\hediet-config\\package.json",
+			range: {
+				start: {
+					line: 2,
+					character: 12,
+				},
+				end: {
+					character: 0,
+					line: 5,
+				},
+			},
+		});
+
 		const instance = await client.registrar.listInstances({});
 		if (!instance) {
 			console.error("No vscode instance");
@@ -24,7 +43,8 @@ async function main() {
 		const vsCodeClient = await client.connectToInstance(instance[0]);
 		track(vsCodeClient);
 
-		const editor = editorContract.getServer(vsCodeClient.channel, {});
+		const editor = editorContract.getServer(vsCodeClient.channel, {})
+			.server;
 
 		// the target vs code instance must have an active file open for this to work
 		editor.annotateLines({

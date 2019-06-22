@@ -3,8 +3,11 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"license": "MIT",
+	"scripts": {
+		"dev": "tsc --watch"
+	},
 	"dependencies": {
-		"@hediet/std": "^0.1.12",
-		"vscode-rpc": "^0.2.4"
+		"@hediet/std": "^0.6.0",
+		"vscode-rpc": "^0.12.0"
 	}
 }

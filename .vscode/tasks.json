@@ -3,8 +3,8 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"label": "npm: watch",
-			"script": "watch",
+			"label": "npm: dev - extension",
+			"script": "dev",
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
 			"presentation": {

@@ -10,9 +10,12 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/extension",
+				"--disable-extensions"
+			],
 			"outFiles": ["${workspaceFolder}/extension/out/**/*.js"],
-			"preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm: dev - extension"
 		},
 		{
 			"name": "Extension Tests",
