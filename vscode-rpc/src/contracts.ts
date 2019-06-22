@@ -166,7 +166,7 @@ export const lineBasedTextRange = t.type({
 
 export const textPosition = t.type({
 	/** The zero based position of the character within the document. */
-	position: t.Integer,
+	offset: t.Integer,
 });
 
 export const textRange = t.type({
