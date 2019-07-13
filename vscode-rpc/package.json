@@ -28,6 +28,6 @@
 		"ws": "^7.0.1"
 	},
 	"devDependencies": {
-		"@types/node": "^11.10.5"
+		"@types/node": "^11.13.17"
 	}
 }

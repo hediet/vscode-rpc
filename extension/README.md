@@ -17,6 +17,10 @@ This extension adds a JSON RPC remote interface to VS Code.
     ![Easy Attach](extension/docs/easy-attach.png)
 
 -   Adds commands for editing and reloading the server config.
+-   Provides RPC contracts for
+    -   Jumping to a given code span of a given file
+    -   Highlighting a given code span
+    -   Adding inline widgets
 
 ## Easy Attach
 

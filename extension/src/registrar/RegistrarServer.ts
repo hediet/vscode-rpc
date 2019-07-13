@@ -20,13 +20,13 @@ import {
 } from "vscode-rpc";
 import { type, literal, string, array, union, nullType } from "io-ts";
 import { DateFromISOString } from "io-ts-types";
-import { sha256 } from "crypto-hash";
 import { Barrier } from "@hediet/std/synchronization";
 import {
 	sourceClientIdParam,
 	serverToServerParam,
 } from "../contractTransformer";
 import { registrarCliContract } from "./contract";
+import { hash } from "./hash";
 
 const paths = envPaths("VsCodeRemoteInterfaceServer");
 mkdirSync(paths.config);
@@ -165,12 +165,12 @@ export class RegistrarServer {
 		return cryptoRandomString({ length: 20 });
 	}
 
-	private hashToken(token: string) {
+	private hashToken(token: string): string {
 		// salted hash
-		return sha256("5df82936cbf0864be4b7ba801bee392457fde9e4" + token);
+		return hash("5df82936cbf0864be4b7ba801bee392457fde9e4" + token);
 	}
 
-	private async startServer() {
+	private async startServer(): Promise<void> {
 		const server = startWebSocketServer({ port: RegistrarPort }, stream => {
 			const channel = TypedChannel.fromStream(
 				new RpcStreamLogger(stream, this.rpcLogger),
@@ -212,7 +212,7 @@ export class RegistrarServer {
 		sourceClientId: string,
 		n: RequestObject,
 		clients: { channel: TypedChannel }[]
-	) {
+	): void {
 		const params = n.params;
 		if (typeof params === "object" && !Array.isArray(params)) {
 			sourceClientIdParam.set(params, sourceClientId);

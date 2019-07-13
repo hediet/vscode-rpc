@@ -3,7 +3,7 @@
 	"displayName": "VS Code RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
-	"version": "0.13.0",
+	"version": "0.13.1",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
@@ -67,12 +67,10 @@
 		"@hediet/typed-json-rpc-streams": "^0.7.6",
 		"@hediet/typed-json-rpc-websocket": "^0.7.7",
 		"@hediet/typed-json-rpc-websocket-server": "^0.7.7",
-		"@types/crypto-hash": "^1.1.2",
 		"@types/crypto-random-string": "^2.0.0",
 		"@types/env-paths": "^2.1.0",
 		"@types/get-port": "^4.2.0",
 		"@types/ws": "^6.0.1",
-		"crypto-hash": "^1.2.1",
 		"crypto-random-string": "^3.0.1",
 		"env-paths": "^2.2.0",
 		"get-port": "^5.0.0",
