@@ -4,6 +4,7 @@ import { Disposable } from "@hediet/std/disposable";
 
 const showStartupMessageKey = "rpcServer.showStartupMessage";
 const autoAttachLabelsKey = "rpcServer.nodeDebugger.autoAttachLabels";
+const debugAdapterKey = "rpcServer.nodeDebugger.debugAdapter";
 
 export class Config {
 	private changeEventEmitter = new EventEmitter();
@@ -16,6 +17,11 @@ export class Config {
 				this.changeEventEmitter.emit();
 			})
 		);
+	}
+
+	public getDebugAdapterKey(): string {
+		const c = workspace.getConfiguration();
+		return c.get<string>(debugAdapterKey) || "node2";
 	}
 
 	public getAutoAttachLabels(): string[] {

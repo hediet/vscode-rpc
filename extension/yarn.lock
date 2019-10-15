@@ -99,13 +99,6 @@
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.7.tgz#1b8e33b61a8c09cbe1f85133071baa0dbf9fa71a"
   integrity sha512-2Y8uPt0/jwjhQ6EiluT0XCri1Dbplr0ZxfFXUz+ye13gaqE8u5gL5ppao1JrUYr9cIip5S6MvQzBS7Kke7U9VA==
 
-"@types/crypto-hash@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@types/crypto-hash/-/crypto-hash-1.1.2.tgz#5a993deb0e6ba7c42f86eaa65d9bf563378f4569"
-  integrity sha512-sOmi+4Go2XKodLV4+lfP+5QMQ+6ZYqRJhK8D/n6xsxIUvlerEulmU9S4Lo02pXCH3qPBeJXEy+g8ZERktDJLSg==
-  dependencies:
-    crypto-hash "*"
-
 "@types/crypto-random-string@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/crypto-random-string/-/crypto-random-string-2.0.0.tgz#e39c2029fca9402eadabe1b3efb83a3085efc490"
@@ -337,11 +330,6 @@ core-util-is@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
-
-crypto-hash@*, crypto-hash@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/crypto-hash/-/crypto-hash-1.2.1.tgz#b7fbca0c9d749b8ae8f3ea44dd66eb11f3554165"
-  integrity sha512-UjisXrC1Xs0YTXc6V7Ypd8IzdbpsowPVgJq/2w478LEA6xx9+4RpcwirELUBP7AxivQOn30/KeEraY2tGy0EQw==
 
 crypto-random-string@*, crypto-random-string@^3.0.1:
   version "3.0.1"

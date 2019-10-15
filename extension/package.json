@@ -3,7 +3,7 @@
 	"displayName": "VS Code RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
-	"version": "0.13.1",
+	"version": "0.13.2",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
@@ -50,6 +50,11 @@
 					"type": "boolean",
 					"description": "Show message when the RPC server successfully started",
 					"default": true
+				},
+				"rpcServer.nodeDebugger.debugAdapter": {
+					"type": "string",
+					"description": "The debug adapter to use.",
+					"default": "node2"
 				}
 			}
 		}

@@ -147,7 +147,7 @@ export class NodeDebugServer {
 	private async launchDebugger(debuggerPort: number, targetId: string) {
 		// "type: node" does not work!
 		const config: DebugConfiguration = {
-			type: "node2",
+			type: this.config.getDebugAdapterKey(),
 			request: "attach",
 			name: "Attach to process",
 			port: debuggerPort,
