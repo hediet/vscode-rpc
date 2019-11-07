@@ -1049,10 +1049,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vscode-rpc@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/vscode-rpc/-/vscode-rpc-0.13.0.tgz#1b9eb2b18a3d2572bd4d606bf7b5c4bc88b3fb69"
-  integrity sha512-GRC/IqaGznrOnuSO/2533ldnnMTxLZ25fqxVDCyH39ILL7chFlz9mIUxxTjPs4DoAhbb6e9IV5MVLjUnshCbOA==
+vscode-rpc@^0.13.1:
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/vscode-rpc/-/vscode-rpc-0.13.1.tgz#e04693547156a9b558c92cfd96f8f18024b5aa31"
+  integrity sha512-YMqMrkSJjd1PY9CenFh6H+EUbDRAmN8v93Bk3DJ6jYh1ETnMtloacnzpnHau6ooJ6vtqAk+HKMzpDxiFXp9wqw==
   dependencies:
     "@hediet/typed-json-rpc" "^0.7.7"
     "@hediet/typed-json-rpc-websocket" "^0.7.7"

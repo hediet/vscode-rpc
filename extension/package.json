@@ -3,7 +3,7 @@
 	"displayName": "VS Code RPC Server",
 	"description": "Provides an RPC interface to automate VSCode from other processes",
 	"icon": "docs/logo.png",
-	"version": "0.13.2",
+	"version": "0.13.3",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.30.0"
@@ -84,7 +84,7 @@
 		"mkdir-recursive": "^0.4.0",
 		"monocle-ts": "1.0.0",
 		"newtype-ts": "0.2.1",
-		"vscode-rpc": "^0.13.0"
+		"vscode-rpc": "^0.13.1"
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.42",

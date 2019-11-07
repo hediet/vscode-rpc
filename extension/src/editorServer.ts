@@ -19,10 +19,29 @@ export class EditorServer {
 	});
 
 	public handleClient(channel: TypedChannel, stream: MessageStream) {
-		editorContract.registerServer(channel, {
+		const { client } = editorContract.registerServer(channel, {
 			highlightLine: this.highlightLine,
 			highlight: this.highlight,
 			annotateLines: this.annotateLines,
+		});
+
+		const disposable = window.onDidChangeTextEditorSelection(e => {
+			client.cursorSelectionsChanged({
+				selections: e.selections.map(s => ({
+					fileName: e.textEditor.document.fileName,
+					fileUri: e.textEditor.document.uri.toString(),
+					range: {
+						start: {
+							offset: e.textEditor.document.offsetAt(s.start),
+						},
+						end: { offset: e.textEditor.document.offsetAt(s.end) },
+					},
+				})),
+			});
+		});
+
+		stream.onClosed.then(() => {
+			disposable.dispose();
 		});
 	}
 

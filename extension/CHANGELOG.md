@@ -16,3 +16,7 @@
 
 -   Removes dependency to `crypto-hash` and uses `crypto` directly.
     `crypto-hash` does not seem to work any more with newest version of VS Code.
+
+## 0.13.2
+
+-   Implements `cursorSelectionsChanged` event for editor contract.
