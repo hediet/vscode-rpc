@@ -192,7 +192,19 @@ export const editorContract = contract([VsCodeInstance], {
 			}),
 		}),
 	},
-	client: {},
+	client: {
+		cursorSelectionsChanged: notificationContract({
+			params: t.type({
+				selections: t.array(
+					t.type({
+						fileName: t.string,
+						fileUri: t.string,
+						range: textRange,
+					})
+				),
+			}),
+		}),
+	},
 });
 
 export const revealTextContract = contract([BroadcastContract], {
