@@ -25,7 +25,7 @@
 		"@hediet/typed-json-rpc-websocket": "^0.7.7",
 		"env-paths": "^2.2.0",
 		"mkdir-recursive": "^0.4.0",
-		"ws": "^7.0.1"
+		"ws": "^7.4.6"
 	},
 	"devDependencies": {
 		"@types/node": "^11.13.17"
